@@ -8,11 +8,24 @@ public class BattleArea : MonoBehaviour
     private GameObject[] enemies = new GameObject[3];
     public GameObject[] spots = new GameObject[6];
     private GameObject player;
+    private GameObject battleUI;
+    public GameObject enemySelector;
+
+    private UI mainUI;
+    private int enemiesAdded = 0;
     public enum GameState {BattleStartUp,PlayerMoveSelection,PlayerAttacking,Enemy1Attacking,Enemy2Attacking,Enemy3Attacking};
     private GameState currentBattleState = GameState.BattleStartUp;
     void Start()
     {
         player = GameObject.Find("Player");
+        battleUI = player.GetComponent<PlayerManager>().battleUI;
+        mainUI = GameObject.Find("Canvas").GetComponent<UI>();
+
+        //Enable Battle UI
+        if (!battleUI.activeSelf) 
+        {
+            battleUI.SetActive(true);
+        }
 
         //Sets player
         SetObject(player, 3);
@@ -21,7 +34,14 @@ public class BattleArea : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!enemies[0] && !enemies[1] && !enemies[2]) 
+        {
+            player.GetComponent<PlayerManager>().currentBattleArea = null;
+            player.GetComponent<PlayerManager>().inBattle = false;
+            mainUI.ResetTurn();
+            battleUI.SetActive(false);
+            Destroy(gameObject);
+        }
     }
     public GameObject[] GetSpots() 
     {
@@ -59,8 +79,10 @@ public class BattleArea : MonoBehaviour
             {
                 if (!enemies[i]) 
                 {
+                    enemiesAdded++;
                     canAdd = true;
                     obj.GetComponent<Enemy>().inBattle = true;
+                    obj.GetComponent<Enemy>().currentBattleScript = this;
                     SetEnemy(obj, i);
                     break;
                 }
@@ -72,7 +94,7 @@ public class BattleArea : MonoBehaviour
         }
         return canAdd;
     }
-    public bool[] enemiesAlive() 
+    public bool[] GetEnemiesAlive() 
     {
         bool[] enemiesAlive = { false, false, false };
 
@@ -80,7 +102,10 @@ public class BattleArea : MonoBehaviour
         {
             if (enemies[i]) 
             {
-                enemiesAlive[i] = true;
+                if (enemies[i].GetComponent<Enemy>().isAlive()) 
+                {
+                    enemiesAlive[i] = true;
+                }
             }
         }
         return enemiesAlive;
@@ -100,5 +125,36 @@ public class BattleArea : MonoBehaviour
             }
         }
         return enemyScripts;
+    }
+    public void RemoveEnemy(GameObject e) 
+    {
+        for (int i = 0; i < 3; i++) 
+        {
+            if (enemies[i]) 
+            {
+                if (enemies[i] == e) 
+                {
+                    enemies[i] = null;
+                    Destroy(e);
+                    break;
+                }
+            }
+        }
+    }
+    public bool AreOpenSpots() 
+    {
+        bool result = false;
+        if (enemiesAdded < 3) 
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (!enemies[i])
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }

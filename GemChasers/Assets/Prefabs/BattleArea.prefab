@@ -416,6 +416,7 @@ MonoBehaviour:
   - {fileID: 1564471768389604472}
   - {fileID: 1564471767209330106}
   - {fileID: 1564471767322271153}
+  enemySelector: {fileID: 0}
 --- !u!1 &1564471768246097744
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,6 +15,9 @@ public class UI : MonoBehaviour
     public GameObject enemy1HealthBarImage;
     public GameObject enemy2HealthBarImage;
     public GameObject enemy3HealthBarImage;
+    public GameObject enemy1Button;
+    public GameObject enemy2Button;
+    public GameObject enemy3Button;
     public GameObject enemy1UI;
     public GameObject enemy2UI;
     public GameObject enemy3UI;
@@ -41,13 +44,15 @@ public class UI : MonoBehaviour
 
     private int outerIndex = -1;
     private int innerIndex = -1;
+    private int selectedEnemyTarget = -1;
 
     private int[] possibleAngles = {0,-60,-120,-180,-240,-300};
+
     // Start is called before the first frame update
     void Start()
     {
         halfWheel = outerWheel.GetComponent<Image>().rectTransform.rect.width * outerWheel.GetComponent<Image>().rectTransform.localScale.x;
-        spinBtn.GetComponent<Button>().onClick.AddListener(Spin);
+        switchButton("Spin", true, Spin);
     }
 
     // Update is called once per frame
@@ -58,7 +63,7 @@ public class UI : MonoBehaviour
         currentHoverAngle = -1;
 
         UpdatePlayerBars();
-        UpdateEnemyBars();
+        UpdateEnemyUI();
 
         if (hasSpun && !isSpinning)
         {
@@ -81,17 +86,13 @@ public class UI : MonoBehaviour
                 if (Input.GetMouseButtonDown(0) && !isLocked && currentHoverAngle != currentSelectedAngle)
                 {
                     isSelected = true;
+                    SwitchEnemyButtons(true);
                     currentSelectedAngle = currentHoverAngle;
                     selected.transform.rotation = Quaternion.AngleAxis(currentSelectedAngle, Vector3.forward);
 
                     if (!selected.activeSelf)
                     {
                         selected.SetActive(true);
-
-                        spinBtn.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Lock In";
-                        spinBtn.GetComponent<Button>().onClick.RemoveAllListeners();
-                        spinBtn.GetComponent<Button>().onClick.AddListener(LockIn);
-                        spinBtn.SetActive(true);
                     }
                 }
                 hover.transform.rotation = Quaternion.AngleAxis(currentHoverAngle, Vector3.forward);
@@ -114,6 +115,10 @@ public class UI : MonoBehaviour
                 {
                     hover.SetActive(false);
                 }
+            }
+            if (isSelected && selectedEnemyTarget != -1)
+            {
+                switchButton("Lock In", true, LockIn);
             }
         }
         else 
@@ -141,9 +146,7 @@ public class UI : MonoBehaviour
                     innerWheel.transform.rotation = Quaternion.AngleAxis(possibleAngles[innerIndex], Vector3.forward);
                 }
             }
-
         }
-        
     }
 
     //Button function to spin wheel
@@ -163,16 +166,25 @@ public class UI : MonoBehaviour
     private void LockIn() 
     {
         isLocked = true;
-        spinBtn.SetActive(false);
-        player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[1].TakeDamage(100);
-        spinBtn.transform.GetChild(0).GetComponent<Text>().text = "Spin";
+
+        //Temporary damage dealt
+        if (player.GetComponent<PlayerManager>().currentBattleArea && selectedEnemyTarget != -1) 
+        {
+            if (player.GetComponent<PlayerManager>().currentBattleArea.GetEnemiesAlive()[selectedEnemyTarget])
+            {
+                player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[selectedEnemyTarget].TakeDamage(100);
+            }
+        }
+
+        switchButton("Spin", true, Spin);
+        ResetTurn();
     }
     private void UpdatePlayerBars() 
     {
         playerHealthBarImage.GetComponent<Image>().fillAmount = player.GetComponent<PlayerManager>().GetHealth() / 100;
         playerEnergyBarImage.GetComponent<Image>().fillAmount = player.GetComponent<PlayerManager>().GetEnergy() / 100;
     }
-    private void UpdateEnemyBars() 
+    private void UpdateEnemyUI() 
     {
         PlayerManager playerScript;
         if (player) 
@@ -182,7 +194,7 @@ public class UI : MonoBehaviour
             {
                 if (playerScript.currentBattleArea) 
                 {
-                    bool[] areEnemiesAlive = playerScript.currentBattleArea.enemiesAlive();
+                    bool[] areEnemiesAlive = playerScript.currentBattleArea.GetEnemiesAlive();
                     UpdateEnemyBar(areEnemiesAlive, enemy1UI, enemy1HealthBarImage, 0);
                     UpdateEnemyBar(areEnemiesAlive, enemy2UI, enemy2HealthBarImage, 1);
                     UpdateEnemyBar(areEnemiesAlive, enemy3UI, enemy3HealthBarImage, 2);
@@ -215,5 +227,50 @@ public class UI : MonoBehaviour
                 UI.SetActive(false);
             }
         }
+    }
+    private void switchButton(string text, bool state, UnityEngine.Events.UnityAction funt = null) 
+    {
+        if (state)
+        {
+            spinBtn.transform.GetChild(0).GetComponent<Text>().text = text;
+            spinBtn.SetActive(state);
+        }
+        else 
+        {
+            spinBtn.SetActive(state);
+            spinBtn.transform.GetChild(0).GetComponent<Text>().text = text;
+        }
+        if (funt != null) 
+        {
+            spinBtn.GetComponent<Button>().onClick.RemoveAllListeners();
+            spinBtn.GetComponent<Button>().onClick.AddListener(funt);
+        }
+    }
+    public void ResetTurn() 
+    {
+        selected.SetActive(false);
+        hover.SetActive(false);
+        isLocked = false;
+        isSpinning = false;
+        isSelected = false;
+        isHovering = false;
+        hasSpun = false;
+        currentHoverAngle = -1;
+        currentSelectedAngle = -1;
+        startSpinTime = 0;
+        outerIndex = -1;
+        innerIndex = -1;
+        selectedEnemyTarget = -1;
+        SwitchEnemyButtons(false);
+    }
+    public void SelectEnemy(int enemyNum) 
+    {
+        selectedEnemyTarget = enemyNum;
+    }
+    private void SwitchEnemyButtons(bool state) 
+    {
+        enemy1Button.GetComponent<Button>().interactable = state;
+        enemy2Button.GetComponent<Button>().interactable = state;
+        enemy3Button.GetComponent<Button>().interactable = state;
     }
 }

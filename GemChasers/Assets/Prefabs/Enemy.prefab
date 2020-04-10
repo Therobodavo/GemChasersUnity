@@ -60,6 +60,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inBattle: 0
+  currentBattleScript: {fileID: 0}
 --- !u!54 &3290690410459589301
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -8,10 +8,12 @@ public class PlayerManager : MonoBehaviour
     private float currentRotation = 0;
     public int speed = 10;
     public GameObject battleArea;
-    private bool inBattle = false;
+    public bool inBattle = false;
     public BattleArea currentBattleArea;
     private float health = 100;
     private float energy = 100;
+
+    public GameObject battleUI;
 
     void Start()
     {
@@ -53,7 +55,13 @@ public class PlayerManager : MonoBehaviour
         GameObject battle = Instantiate(battleArea,new Vector3(0,1,0),Quaternion.identity);
         currentBattleArea = battle.GetComponent<BattleArea>();
         currentBattleArea.SetSpawnPoint();
-        currentBattleArea.AddCreature(hitEnemy,true);
+        if (hitEnemy) 
+        {
+            if (!hitEnemy.GetComponent<Enemy>().inBattle) 
+            {
+                currentBattleArea.AddCreature(hitEnemy, true);
+            }
+        }
     }
 
     public float GetHealth() 
@@ -105,7 +113,7 @@ public class PlayerManager : MonoBehaviour
     public bool isAlive() 
     {
         bool result = false;
-        if (health >= 0)
+        if (health > 0)
         {
             result = true;
         }
