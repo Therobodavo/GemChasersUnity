@@ -9,6 +9,10 @@ public class PlayerManager : MonoBehaviour
     public int speed = 10;
     public GameObject battleArea;
     private bool inBattle = false;
+    public BattleArea currentBattleArea;
+    private float health = 100;
+    private float energy = 100;
+
     void Start()
     {
 
@@ -47,7 +51,65 @@ public class PlayerManager : MonoBehaviour
     private void CreateBattleArea(GameObject hitEnemy) 
     {
         GameObject battle = Instantiate(battleArea,new Vector3(0,1,0),Quaternion.identity);
-        battle.GetComponent<BattleArea>().SetSpawnPoint();
-        battle.GetComponent<BattleArea>().AddCreature(hitEnemy,true);
+        currentBattleArea = battle.GetComponent<BattleArea>();
+        currentBattleArea.SetSpawnPoint();
+        currentBattleArea.AddCreature(hitEnemy,true);
+    }
+
+    public float GetHealth() 
+    {
+        return health;
+    }
+    public float GetEnergy() 
+    {
+        return energy;
+    }
+    public void TakeDamage(float damage) 
+    {
+        if (damage > 0) 
+        {
+            if (health - damage < 0)
+            {
+                health = 0;
+            }
+            else
+            {
+                health -= damage;
+            }
+        }
+    }
+    public void TakeEnergy(float usage) 
+    {
+        if (usage > 0)
+        {
+            if (energy - usage < 0)
+            {
+                energy = 0;
+            }
+            else
+            {
+                energy -= usage;
+            }
+        }
+    }
+    public bool hasEnoughEnergy(float moveCost) 
+    {
+        bool result = false;
+        if (energy >= moveCost) 
+        {
+            result = true;
+        }
+
+        return result;
+    }
+    public bool isAlive() 
+    {
+        bool result = false;
+        if (health >= 0)
+        {
+            result = true;
+        }
+
+        return result;
     }
 }

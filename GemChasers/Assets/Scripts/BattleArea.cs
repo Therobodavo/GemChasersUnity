@@ -8,6 +8,8 @@ public class BattleArea : MonoBehaviour
     private GameObject[] enemies = new GameObject[3];
     public GameObject[] spots = new GameObject[6];
     private GameObject player;
+    public enum GameState {BattleStartUp,PlayerMoveSelection,PlayerAttacking,Enemy1Attacking,Enemy2Attacking,Enemy3Attacking};
+    private GameState currentBattleState = GameState.BattleStartUp;
     void Start()
     {
         player = GameObject.Find("Player");
@@ -69,5 +71,34 @@ public class BattleArea : MonoBehaviour
             //Save for summons
         }
         return canAdd;
+    }
+    public bool[] enemiesAlive() 
+    {
+        bool[] enemiesAlive = { false, false, false };
+
+        for (int i = 0; i < 3; i++) 
+        {
+            if (enemies[i]) 
+            {
+                enemiesAlive[i] = true;
+            }
+        }
+        return enemiesAlive;
+    }
+    public GameObject[] GetEnemies() 
+    {
+        return enemies;
+    }
+    public Enemy[] GetEnemyScripts() 
+    {
+        Enemy[] enemyScripts = new Enemy[3];
+        for (int i = 0; i < 3; i++) 
+        {
+            if (enemies[i]) 
+            {
+                enemyScripts[i] = enemies[i].GetComponent<Enemy>();
+            }
+        }
+        return enemyScripts;
     }
 }
