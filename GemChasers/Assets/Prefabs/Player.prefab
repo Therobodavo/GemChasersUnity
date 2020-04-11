@@ -50,6 +50,9 @@ MonoBehaviour:
   speed: 10
   battleArea: {fileID: 1564471768106271125, guid: 5f7131ed7ee38734ab91ea9522f8f074,
     type: 3}
+  inBattle: 0
+  currentBattleArea: {fileID: 0}
+  battleUI: {fileID: 0}
 --- !u!54 &1081710179
 Rigidbody:
   m_ObjectHideFlags: 0
