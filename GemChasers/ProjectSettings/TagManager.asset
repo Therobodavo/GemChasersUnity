@@ -6,6 +6,12 @@ TagManager:
   tags:
   - Enemy
   - BattleArea
+  - EnemyBattleHUD
+  - EnemyBattleHealthBarFill
+  - EnemyBattleEnergyBarFill
+  - EnemyBattleButton
+  - EnemyBattleEnergyText
+  - EnemyBattleHealthText
   layers:
   - Default
   - TransparentFX

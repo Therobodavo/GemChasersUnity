@@ -12,15 +12,14 @@ public class UI : MonoBehaviour
     public GameObject wanderingUI;
     public GameObject playerHealthBarImage;
     public GameObject playerEnergyBarImage;
-    public GameObject enemy1HealthBarImage;
-    public GameObject enemy2HealthBarImage;
-    public GameObject enemy3HealthBarImage;
-    public GameObject enemy1Button;
-    public GameObject enemy2Button;
-    public GameObject enemy3Button;
-    public GameObject enemy1UI;
-    public GameObject enemy2UI;
-    public GameObject enemy3UI;
+
+    public GameObject[] enemyHealthBarImages;
+    public GameObject[] enemyHealthBarText;
+    public GameObject[] enemyEnergyBarImages; 
+    public GameObject[] enemyEnergyBarText;
+    public GameObject[] enemyButtons;
+    public GameObject[] enemyUI;
+
     public GameObject[] gems;
     public GameObject[] buffs;
     public GameObject hover;
@@ -49,8 +48,19 @@ public class UI : MonoBehaviour
     private int[] possibleAngles = {0,-60,-120,-180,-240,-300};
 
     // Start is called before the first frame update
+    private void Awake()
+    {
+        enemyHealthBarImages = GameObject.FindGameObjectsWithTag("EnemyBattleHealthBarFill");
+        enemyHealthBarText = GameObject.FindGameObjectsWithTag("EnemyBattleHealthText");
+        enemyEnergyBarImages = GameObject.FindGameObjectsWithTag("EnemyBattleEnergyBarFill");
+        enemyEnergyBarText = GameObject.FindGameObjectsWithTag("EnemyBattleEnergyText");
+        enemyButtons = GameObject.FindGameObjectsWithTag("EnemyBattleButton");
+        enemyUI = GameObject.FindGameObjectsWithTag("EnemyBattleHUD");
+    }
     void Start()
     {
+        battleUI.SetActive(false);
+
         halfWheel = outerWheel.GetComponent<Image>().rectTransform.rect.width * outerWheel.GetComponent<Image>().rectTransform.localScale.x;
         switchButton("Spin", true, Spin);
     }
@@ -172,7 +182,7 @@ public class UI : MonoBehaviour
         {
             if (player.GetComponent<PlayerManager>().currentBattleArea.GetEnemiesAlive()[selectedEnemyTarget])
             {
-                player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[selectedEnemyTarget].TakeDamage(100);
+                player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[selectedEnemyTarget].TakeDamage(50);
             }
         }
 
@@ -195,9 +205,10 @@ public class UI : MonoBehaviour
                 if (playerScript.currentBattleArea) 
                 {
                     bool[] areEnemiesAlive = playerScript.currentBattleArea.GetEnemiesAlive();
-                    UpdateEnemyBar(areEnemiesAlive, enemy1UI, enemy1HealthBarImage, 0);
-                    UpdateEnemyBar(areEnemiesAlive, enemy2UI, enemy2HealthBarImage, 1);
-                    UpdateEnemyBar(areEnemiesAlive, enemy3UI, enemy3HealthBarImage, 2);
+                    for (int i = 0; i < 3; i++) 
+                    {
+                        UpdateEnemyBar(areEnemiesAlive, enemyUI[i], enemyHealthBarImages[i], i);
+                    }
                 }
             }
         }
@@ -212,6 +223,7 @@ public class UI : MonoBehaviour
                 Enemy enemyScript = player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[index];
                 if (enemyScript) 
                 {
+                    UIImage.GetComponent<Image>().fillAmount = enemyScript.GetHealth() / 100;
                     UIImage.GetComponent<Image>().fillAmount = enemyScript.GetHealth() / 100;
                 }
             }
@@ -269,8 +281,9 @@ public class UI : MonoBehaviour
     }
     private void SwitchEnemyButtons(bool state) 
     {
-        enemy1Button.GetComponent<Button>().interactable = state;
-        enemy2Button.GetComponent<Button>().interactable = state;
-        enemy3Button.GetComponent<Button>().interactable = state;
+        for (int i = 0; i < 3; i++) 
+        {
+            enemyButtons[i].GetComponent<Button>().interactable = state;
+        }
     }
 }

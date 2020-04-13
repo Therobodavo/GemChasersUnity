@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour
     // Start is called before the first frame update
     public bool inBattle = false;
     private float health = 100;
+    private float energy = 100;
     public BattleArea currentBattleScript;
     void Start()
     {
@@ -52,6 +53,10 @@ public class Enemy : MonoBehaviour
     {
         return health;
     }
+    public float GetEnergy() 
+    {
+        return energy;
+    }
     public void TakeDamage(float damage)
     {
         if (damage > 0)
@@ -63,6 +68,20 @@ public class Enemy : MonoBehaviour
             else
             {
                 health -= damage;
+            }
+        }
+    }
+    public void TakeEnergy(float usage)
+    {
+        if (usage > 0)
+        {
+            if (energy - usage < 0)
+            {
+                energy = 0;
+            }
+            else
+            {
+                energy -= usage;
             }
         }
     }
