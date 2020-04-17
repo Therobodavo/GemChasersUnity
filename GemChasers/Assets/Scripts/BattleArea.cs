@@ -7,20 +7,26 @@ public class BattleArea : MonoBehaviour
     // Start is called before the first frame update
     private GameObject[] enemies = new GameObject[3];
     public GameObject[] spots = new GameObject[6];
-    private GameObject player;
+    public GameObject player;
     private GameObject battleUI;
     public GameObject enemySelector;
 
     private UI mainUI;
     private int enemiesAdded = 0;
-    public enum GameState {BattleStartUp,PlayerMoveSelection,PlayerAttacking,Enemy1Attacking,Enemy2Attacking,Enemy3Attacking};
-    private GameState currentBattleState = GameState.BattleStartUp;
+    public enum GameState {BattleStartUp,PlayerStartTurn,PlayerMoveSelection,PlayerMoveSelected,AttackPhase};
+    public GameState currentBattleState = GameState.BattleStartUp;
+
+    private List<IBattle> turnOrder;
+    private float attackStartTime = 0;
+    private bool attackStart = false;
+    private int turnIndex = 0;
     void Start()
     {
+        turnOrder = new List<IBattle>();
         player = GameObject.Find("Player");
         battleUI = player.GetComponent<PlayerManager>().battleUI;
         mainUI = GameObject.Find("Canvas").GetComponent<UI>();
-
+        player.GetComponent<PlayerManager>().toggleCamera(1);
         //Enable Battle UI
         if (!battleUI.activeSelf) 
         {
@@ -36,12 +42,93 @@ public class BattleArea : MonoBehaviour
     {
         if (!enemies[0] && !enemies[1] && !enemies[2]) 
         {
-            player.GetComponent<PlayerManager>().currentBattleArea = null;
-            player.GetComponent<PlayerManager>().inBattle = false;
-            mainUI.ResetTurn();
-            battleUI.SetActive(false);
-            Destroy(gameObject);
+            OnBattleEnd();
         }
+
+        if (currentBattleState == GameState.PlayerStartTurn)
+        {
+            mainUI.ResetTurn();
+            currentBattleState = GameState.PlayerMoveSelection;
+            player.GetComponent<PlayerManager>().toggleCamera(1);
+        }
+        else if (currentBattleState == GameState.PlayerMoveSelected)
+        {
+            turnOrder = new List<IBattle>();
+            turnOrder.Add(player.GetComponent<IBattle>());
+
+            //Calculate turn order
+            foreach (GameObject e in enemies) 
+            {
+                if (e) 
+                {
+                    for (int i = turnOrder.Count - 1; i >= 0; i--)
+                    {
+                        //Math to determine move order
+                        if (e.GetComponent<IBattle>().GetSpeed() <= turnOrder[i].GetComponent<IBattle>().GetSpeed())
+                        {
+                            turnOrder.Insert(i + 1,e.GetComponent<IBattle>());
+                            break;
+                        }
+                    }
+                }
+            }
+
+            //Show order
+            foreach (IBattle obj in turnOrder) 
+            {
+               // Debug.Log(obj.name + " - " + obj.GetSpeed());
+            }
+            attackStart = false;
+            currentBattleState = GameState.AttackPhase;
+        }
+        else if (currentBattleState == GameState.AttackPhase) 
+        {
+            player.GetComponent<PlayerManager>().toggleCamera(2);
+            if (!turnOrder[turnIndex]) 
+            {
+                turnOrder.RemoveAt(turnIndex);
+                
+                if (turnIndex >= turnOrder.Count)
+                {
+                    currentBattleState = GameState.PlayerStartTurn;
+                    attackStart = false;
+                }
+            }
+            if (!attackStart) 
+            {
+                attackStartTime = Time.timeSinceLevelLoad;
+                attackStart = true;
+            }
+
+            //If some sort of animation is over
+            if (Time.timeSinceLevelLoad - attackStartTime > 1)
+            {
+                //Run attack
+                if (turnOrder[turnIndex]) 
+                {
+                    turnOrder[turnIndex].UseMove();
+                    turnIndex++;
+                }
+
+                attackStart = false;
+                if (turnIndex >= turnOrder.Count)
+                {
+                    currentBattleState = GameState.PlayerStartTurn;
+                }
+
+            }
+        }
+
+
+    }
+    private void OnBattleEnd() 
+    {
+        player.GetComponent<PlayerManager>().currentBattleArea = null;
+        player.GetComponent<PlayerManager>().inBattle = false;
+        mainUI.ResetTurn();
+        battleUI.SetActive(false);
+        player.GetComponent<PlayerManager>().toggleCamera(0);
+        Destroy(gameObject);
     }
     public GameObject[] GetSpots() 
     {
@@ -81,8 +168,8 @@ public class BattleArea : MonoBehaviour
                 {
                     enemiesAdded++;
                     canAdd = true;
-                    obj.GetComponent<Enemy>().inBattle = true;
-                    obj.GetComponent<Enemy>().currentBattleScript = this;
+                    obj.GetComponent<IBattle>().inBattle = true;
+                    obj.GetComponent<IBattle>().currentBattleArea = this;
                     SetEnemy(obj, i);
                     break;
                 }
@@ -102,7 +189,7 @@ public class BattleArea : MonoBehaviour
         {
             if (enemies[i]) 
             {
-                if (enemies[i].GetComponent<Enemy>().isAlive()) 
+                if (enemies[i].GetComponent<IBattle>().isAlive()) 
                 {
                     enemiesAlive[i] = true;
                 }
@@ -114,14 +201,14 @@ public class BattleArea : MonoBehaviour
     {
         return enemies;
     }
-    public Enemy[] GetEnemyScripts() 
+    public IBattle[] GetEnemyScripts() 
     {
-        Enemy[] enemyScripts = new Enemy[3];
+        IBattle[] enemyScripts = new IBattle[3];
         for (int i = 0; i < 3; i++) 
         {
             if (enemies[i]) 
             {
-                enemyScripts[i] = enemies[i].GetComponent<Enemy>();
+                enemyScripts[i] = enemies[i].GetComponent<IBattle>();
             }
         }
         return enemyScripts;

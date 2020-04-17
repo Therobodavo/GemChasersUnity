@@ -12,6 +12,7 @@ public class UI : MonoBehaviour
     public GameObject wanderingUI;
     public GameObject playerHealthBarImage;
     public GameObject playerEnergyBarImage;
+    public GameObject moveInfoHUD;
 
     public GameObject[] enemyHealthBarImages;
     public GameObject[] enemyHealthBarText;
@@ -22,11 +23,13 @@ public class UI : MonoBehaviour
 
     public GameObject[] gems;
     public GameObject[] buffs;
+
     public GameObject hover;
     public GameObject selected;
     public GameObject spinBtn;
-
+    private GameObject playerInputUI;
     public GameObject player;
+    public GameObject selectTargetText;
 
     private float halfWheel = 0;
     private float currentHoverAngle = -1;
@@ -43,7 +46,7 @@ public class UI : MonoBehaviour
 
     private int outerIndex = -1;
     private int innerIndex = -1;
-    private int selectedEnemyTarget = -1;
+    public int selectedEnemyTarget = -1;
 
     private int[] possibleAngles = {0,-60,-120,-180,-240,-300};
 
@@ -56,11 +59,11 @@ public class UI : MonoBehaviour
         enemyEnergyBarText = GameObject.FindGameObjectsWithTag("EnemyBattleEnergyText");
         enemyButtons = GameObject.FindGameObjectsWithTag("EnemyBattleButton");
         enemyUI = GameObject.FindGameObjectsWithTag("EnemyBattleHUD");
+        playerInputUI = GameObject.FindGameObjectWithTag("PlayerBattleInputUI");
     }
     void Start()
     {
         battleUI.SetActive(false);
-
         halfWheel = outerWheel.GetComponent<Image>().rectTransform.rect.width * outerWheel.GetComponent<Image>().rectTransform.localScale.x;
         switchButton("Spin", true, Spin);
     }
@@ -77,6 +80,14 @@ public class UI : MonoBehaviour
 
         if (hasSpun && !isSpinning)
         {
+            if (isHovering || isSelected)
+            {
+                moveInfoHUD.SetActive(true);
+            }
+            else 
+            {
+                moveInfoHUD.SetActive(false);
+            }
             if (Input.mousePosition.y >= outerWheel.transform.position.y && angleVector.magnitude <= (halfWheel / 2))
             {
                 isHovering = true;
@@ -104,6 +115,7 @@ public class UI : MonoBehaviour
                     {
                         selected.SetActive(true);
                     }
+                    selectTargetText.SetActive(true);
                 }
                 hover.transform.rotation = Quaternion.AngleAxis(currentHoverAngle, Vector3.forward);
             }
@@ -178,16 +190,17 @@ public class UI : MonoBehaviour
         isLocked = true;
 
         //Temporary damage dealt
-        if (player.GetComponent<PlayerManager>().currentBattleArea && selectedEnemyTarget != -1) 
-        {
-            if (player.GetComponent<PlayerManager>().currentBattleArea.GetEnemiesAlive()[selectedEnemyTarget])
-            {
-                player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[selectedEnemyTarget].TakeDamage(50);
-            }
-        }
+        /* if (player.GetComponent<PlayerManager>().currentBattleArea && selectedEnemyTarget != -1) 
+         {
+             if (player.GetComponent<PlayerManager>().currentBattleArea.GetEnemiesAlive()[selectedEnemyTarget])
+             {
+                 player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[selectedEnemyTarget].TakeDamage(50);
+             }
+         }*/
+        //Change State
 
-        switchButton("Spin", true, Spin);
-        ResetTurn();
+        togglePlayerTurnInput(false);
+        player.GetComponent<PlayerManager>().currentBattleArea.currentBattleState = BattleArea.GameState.PlayerMoveSelected;
     }
     private void UpdatePlayerBars() 
     {
@@ -220,7 +233,7 @@ public class UI : MonoBehaviour
             if (UI.activeSelf)
             {
                 //Update Bar
-                Enemy enemyScript = player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[index];
+                IBattle enemyScript = player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[index];
                 if (enemyScript) 
                 {
                     UIImage.GetComponent<Image>().fillAmount = enemyScript.GetHealth() / 100;
@@ -274,10 +287,22 @@ public class UI : MonoBehaviour
         innerIndex = -1;
         selectedEnemyTarget = -1;
         SwitchEnemyButtons(false);
+        switchButton("Spin",true,Spin);
+
+        //Make sure everything is active
+        togglePlayerTurnInput(true);
     }
     public void SelectEnemy(int enemyNum) 
     {
         selectedEnemyTarget = enemyNum;
+        selectTargetText.SetActive(false);
+    }
+    public void togglePlayerTurnInput(bool state) 
+    {
+        if (playerInputUI.activeSelf != state) 
+        {
+            playerInputUI.SetActive(state);
+        }
     }
     private void SwitchEnemyButtons(bool state) 
     {

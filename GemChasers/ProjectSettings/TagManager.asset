@@ -12,6 +12,8 @@ TagManager:
   - EnemyBattleButton
   - EnemyBattleEnergyText
   - EnemyBattleHealthText
+  - PlayerWheelSlotEnergyCostText
+  - PlayerBattleInputUI
   layers:
   - Default
   - TransparentFX
