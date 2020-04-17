@@ -10,7 +10,8 @@ public class BattleArea : MonoBehaviour
     public GameObject player;
     private GameObject battleUI;
     public GameObject enemySelector;
-
+    public Material whiteMat;
+    public Material yellowMat;
     private UI mainUI;
     private int enemiesAdded = 0;
     public enum GameState {BattleStartUp,PlayerStartTurn,PlayerMoveSelection,PlayerMoveSelected,AttackPhase,BattleEnd};
@@ -22,6 +23,9 @@ public class BattleArea : MonoBehaviour
     private int turnIndex = 0;
     void Start()
     {
+        whiteMat = Resources.Load("Materials/White", typeof(Material)) as Material;
+        yellowMat = Resources.Load("Materials/Yellow", typeof(Material)) as Material;
+
         turnOrder = new List<IBattle>();
         player = GameObject.Find("Player");
         battleUI = player.GetComponent<PlayerManager>().battleUI;
@@ -50,6 +54,7 @@ public class BattleArea : MonoBehaviour
             mainUI.ResetTurn();
             currentBattleState = GameState.PlayerMoveSelection;
             player.GetComponent<PlayerManager>().toggleCamera(1);
+            ResetPlatforms();
         }
         else if (currentBattleState == GameState.PlayerMoveSelected)
         {
@@ -78,43 +83,54 @@ public class BattleArea : MonoBehaviour
         }
         else if (currentBattleState == GameState.AttackPhase) 
         {
+            
             player.GetComponent<PlayerManager>().toggleCamera(2);
-            if (!turnOrder[turnIndex]) 
+            if (!turnOrder[turnIndex] || !turnOrder[turnIndex].isAlive())
             {
                 turnOrder.RemoveAt(turnIndex);
-                
+
                 if (turnIndex >= turnOrder.Count)
                 {
                     currentBattleState = GameState.PlayerStartTurn;
                     attackStart = false;
                 }
             }
-            if (!attackStart) 
+            else 
             {
-                attackStartTime = Time.timeSinceLevelLoad;
-                attackStart = true;
-            }
-
-            //If some sort of animation is over
-            if (Time.timeSinceLevelLoad - attackStartTime > 1)
-            {
-                //Run attack
-                if (turnOrder[turnIndex]) 
+                if (!attackStart)
                 {
-                    turnOrder[turnIndex].UseMove();
-                    turnIndex++;
+                    attackStartTime = Time.timeSinceLevelLoad;
+                    attackStart = true;
+                    ResetPlatforms();
+                    Debug.Log(Time.timeSinceLevelLoad + " - " + turnIndex);
+                    if (turnIndex < turnOrder.Count && turnIndex >= 0)
+                    {
+                        if (turnOrder[turnIndex].isAlive())
+                        {
+                            SetCurrentAttacking();
+                        }
+                    }
                 }
 
-                attackStart = false;
-                if (turnIndex >= turnOrder.Count)
+                //If some sort of animation is over
+                if (Time.timeSinceLevelLoad - attackStartTime > 1)
                 {
-                    currentBattleState = GameState.PlayerStartTurn;
-                }
+                    //Run attack
+                    if (turnOrder[turnIndex])
+                    {
+                        turnOrder[turnIndex].UseMove();
+                        turnIndex++;
+                    }
 
+                    attackStart = false;
+                    if (turnIndex >= turnOrder.Count)
+                    {
+                        currentBattleState = GameState.PlayerStartTurn;
+                    }
+
+                }
             }
         }
-
-
     }
     private void OnBattleEnd() 
     {
@@ -244,6 +260,13 @@ public class BattleArea : MonoBehaviour
     }
     private void SetCurrentAttacking() 
     {
-
+        turnOrder[turnIndex].transform.parent.GetChild(0).GetComponent<MeshRenderer>().material = yellowMat;
+    }
+    private void ResetPlatforms() 
+    {
+        for (int i = 0; i < spots.Length; i++) 
+        {
+            spots[i].transform.GetChild(0).GetComponent<MeshRenderer>().material = whiteMat;
+        }
     }
 }
