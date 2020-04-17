@@ -13,7 +13,7 @@ public class BattleArea : MonoBehaviour
 
     private UI mainUI;
     private int enemiesAdded = 0;
-    public enum GameState {BattleStartUp,PlayerStartTurn,PlayerMoveSelection,PlayerMoveSelected,AttackPhase};
+    public enum GameState {BattleStartUp,PlayerStartTurn,PlayerMoveSelection,PlayerMoveSelected,AttackPhase,BattleEnd};
     public GameState currentBattleState = GameState.BattleStartUp;
 
     private List<IBattle> turnOrder;
@@ -54,6 +54,7 @@ public class BattleArea : MonoBehaviour
         else if (currentBattleState == GameState.PlayerMoveSelected)
         {
             turnOrder = new List<IBattle>();
+            turnIndex = 0;
             turnOrder.Add(player.GetComponent<IBattle>());
 
             //Calculate turn order
@@ -71,12 +72,6 @@ public class BattleArea : MonoBehaviour
                         }
                     }
                 }
-            }
-
-            //Show order
-            foreach (IBattle obj in turnOrder) 
-            {
-               // Debug.Log(obj.name + " - " + obj.GetSpeed());
             }
             attackStart = false;
             currentBattleState = GameState.AttackPhase;
@@ -125,9 +120,11 @@ public class BattleArea : MonoBehaviour
     {
         player.GetComponent<PlayerManager>().currentBattleArea = null;
         player.GetComponent<PlayerManager>().inBattle = false;
+        currentBattleState = GameState.BattleEnd;
         mainUI.ResetTurn();
         battleUI.SetActive(false);
         player.GetComponent<PlayerManager>().toggleCamera(0);
+        player.transform.parent = null;
         Destroy(gameObject);
     }
     public GameObject[] GetSpots() 
@@ -151,6 +148,7 @@ public class BattleArea : MonoBehaviour
         {
             obj.transform.position = spots[index].transform.position;
             obj.transform.rotation = spots[index].transform.rotation;
+            obj.transform.parent = spots[index].transform;
         }
     }
     public void SetSpawnPoint() 
@@ -243,5 +241,9 @@ public class BattleArea : MonoBehaviour
             }
         }
         return result;
+    }
+    private void SetCurrentAttacking() 
+    {
+
     }
 }

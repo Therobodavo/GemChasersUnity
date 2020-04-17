@@ -110,7 +110,7 @@ public class PlayerManager : IBattle
                     if (obj) 
                     {
                         TakeEnergy(10);
-                        AttackTarget(obj, 50);
+                        AttackTarget(obj, 100);
                     }
                 }    
             }
