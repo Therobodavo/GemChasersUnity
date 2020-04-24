@@ -67,7 +67,17 @@ public class UI : MonoBehaviour
         halfWheel = outerWheel.GetComponent<Image>().rectTransform.rect.width * outerWheel.GetComponent<Image>().rectTransform.localScale.x;
         switchButton("Spin", true, Spin);
     }
-
+    public void SetUpWheel() 
+    {
+        for (int i = 0; i < buffs.Length; i++) 
+        {
+            buffs[i].transform.GetChild(0).GetComponent<Image>().sprite = player.GetComponent<PlayerManager>().wheelBuffs[i].buffImage;
+        }
+        for (int i = 0; i < gems.Length; i++)
+        {
+            gems[i].transform.GetChild(0).GetComponent<Image>().sprite = player.GetComponent<PlayerManager>().wheelGems[i].gemImage;
+        }
+    }
     // Update is called once per frame
     void Update()
     {
@@ -180,6 +190,8 @@ public class UI : MonoBehaviour
 
         outerIndex = Random.Range(0, 5);
         innerIndex = Random.Range(0, 5);
+        player.GetComponent<PlayerManager>().CreateAttacks(outerIndex, innerIndex);
+
 
         spinBtn.SetActive(false);
     }

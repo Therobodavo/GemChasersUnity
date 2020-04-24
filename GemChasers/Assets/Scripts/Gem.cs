@@ -4,10 +4,21 @@ using UnityEngine;
 
 public class Gem
 {
-    private int GemTypeID = 0;
-    public Gem(int gemType) 
+    public int gemTypeID = 0;
+    public Sprite gemImage;
+    protected LevelManager lm;
+    public Gem(IType.GemType gemType) 
     {
-        GemTypeID = gemType;
+        gemTypeID = (int)gemType;
+        lm = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        if (lm) 
+        {
+            Sprite temp = lm.gemImages[gemTypeID];
+            if (temp) 
+            {
+                gemImage = temp;
+            }
+        }
     }
 
 }

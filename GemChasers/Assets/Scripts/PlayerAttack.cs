@@ -5,13 +5,13 @@ using UnityEngine;
 public class PlayerAttack
 {
     private Buff[] buffs;
-    private Gem gemType;
+    public Gem gemType;
 
     private int energyCost;
     private PlayerManager playerScript;
 
 
-    public PlayerAttack(PlayerManager player, Buff buff1, Buff buff2, Gem gem) 
+    public PlayerAttack(PlayerManager player, Buff buff1 = null, Buff buff2 = null, Gem gem = null) 
     {
         playerScript = player;
         buffs = new Buff[2];
@@ -19,14 +19,17 @@ public class PlayerAttack
         buffs[1] = buff2;
         gemType = gem;
 
-        int sum = buff1.GetEnergyCost() + buff2.GetEnergyCost();
-        if (sum > 100)
+        if (buff1 != null && buff2 != null) 
         {
-            energyCost = 100;
-        }
-        else 
-        {
-            energyCost = buff1.GetEnergyCost() + buff2.GetEnergyCost();
+            int sum = buff1.GetEnergyCost() + buff2.GetEnergyCost();
+            if (sum > 100)
+            {
+                energyCost = 100;
+            }
+            else
+            {
+                energyCost = sum;
+            }
         }
     }
     public int GetEnergyCost() 
