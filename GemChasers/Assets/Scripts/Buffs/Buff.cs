@@ -8,6 +8,11 @@ public class Buff
     protected int energyCost = 0;
     public Sprite buffImage;
     protected LevelManager lm;
+    public IType.BuffType[] instantAttackCombinations;
+    public IType.BuffType[] instantPassiveCombinations;
+    public IType.BuffType[] delayedPassiveCombinations;
+    public IType.BuffType[] delayedAttackCombinations;
+
     public Buff(int id) 
     {
         BuffTypeID = id;
@@ -23,6 +28,16 @@ public class Buff
             }
         }
     }
+    public virtual void InitAttack(PlayerAttack attackObj) 
+    {
+        if (attackObj != null) 
+        {
+            if (attackObj.gemType != null) 
+            {
+                attackObj.playerScript.currentType = (IType.ElementType)attackObj.gemType.gemTypeID;
+            }
+        }
+    }
     public int GetBuffID() 
     {
         return BuffTypeID;
@@ -30,6 +45,22 @@ public class Buff
     public int GetEnergyCost() 
     {
         return energyCost;
+    }
+    public virtual void OnInstantAttack(PlayerAttack attackObj) 
+    {
+        InitAttack(attackObj);
+    }
+    public virtual void OnInstantPassive(PlayerAttack attackObj)
+    {
+        InitAttack(attackObj);
+    }
+    public virtual void OnDelayedAttack(PlayerAttack attackObj)
+    {
+        InitAttack(attackObj);
+    }
+    public virtual void OnDelayedPassive(PlayerAttack attackObj)
+    {
+        InitAttack(attackObj);
     }
 
 }

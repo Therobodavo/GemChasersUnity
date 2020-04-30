@@ -7,6 +7,12 @@ public class Enemy : IBattle
     protected override void Start()
     {
         base.Start();
+        baseStats[0] = 10;
+        baseStats[1] = 1;
+        baseStats[2] = 3;
+        health = 100;
+        energy = 100;
+        currentType = IType.ElementType.Heat;
     }
 
     // Update is called once per frame
@@ -45,8 +51,14 @@ public class Enemy : IBattle
         base.UseMove();
         if (currentBattleArea)
         {
-            TakeEnergy(10);
-            AttackTarget(currentBattleArea.player.GetComponent<PlayerManager>(),10);
+            TakeEnergy(30);
+
+            float typeMod = 1;
+            if (currentType != IType.ElementType.NoType)
+            {
+                typeMod = statModifiers[(int)currentType, 0];
+            }
+            currentBattleArea.player.GetComponent<PlayerManager>().TakeDamage(this,(baseStats[0] * typeMod), false);
         }
     }
 }

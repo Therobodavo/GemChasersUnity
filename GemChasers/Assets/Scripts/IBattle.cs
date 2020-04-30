@@ -8,18 +8,29 @@ public class IBattle : MonoBehaviour
     protected float health = 100;
     protected float energy = 100;
 
-    protected float speedStat = 1;
-    protected float defenseStat = 1;
-    protected float attackStat = 1;
+    //Attack,Defense,Speed
+    public float[] baseStats = {12,1,1};
+    public IType.ElementType currentType = IType.ElementType.NoType;
 
-    IType.ElementType currentType = IType.ElementType.NoType;
-
+    public int comboCount = 0;
     public BattleArea currentBattleArea;
+    public bool isPassing = false;
+    public List<BattleEffect> turnEffects;
+    public List<BattleEffect> turnDamage;
+    public float[,] statModifiers =
+{
+        {1.3f,0.8f,1},  //Heat
+        {1.1f,0.8f,2},  //Breeze
+        {0.8f,1.3f,-1}, //Forest
+        {1.1f,0.6f,3},  //Music
+        {1,1.2f,-1},    //Space
+        {1,1,0}         //Water 
+    };
     protected virtual void Start()
     {
-        
+        turnEffects = new List<BattleEffect>();
+        turnDamage = new List<BattleEffect>();
     }
-
 
     protected virtual void Update()
     {
@@ -36,12 +47,51 @@ public class IBattle : MonoBehaviour
     {
         return health;
     }
+    public void Heal(float incomingHealth) 
+    {
+        if (incomingHealth > 0) 
+        {
+            if (health + incomingHealth > 100)
+            {
+                health = 100;
+            }
+            else 
+            {
+                health += incomingHealth;
+            }
+        }
+    }
+    public void Relax(float incomingEnergy) 
+    {
+        if (incomingEnergy > 0)
+        {
+            if (energy + incomingEnergy > 100)
+            {
+                energy = 100;
+            }
+            else
+            {
+                energy += incomingEnergy;
+            }
+        }
+    }
     public virtual float GetEnergy()
     {
         return energy;
     }
-    public virtual void TakeDamage(float damage)
+    public virtual void TakeDamage(IBattle attacker,float damage, bool isCombo)
     {
+        if (isCombo)
+        {
+            comboCount++;
+            damage *= Mathf.Pow(1.5f,comboCount);
+        }
+        else
+        {
+            comboCount = 0;
+        }
+        damage = CalcResistDamage(attacker, damage);
+        Debug.Log("Damage: " + damage);
         if (damage > 0)
         {
             if (health - damage < 0)
@@ -53,6 +103,34 @@ public class IBattle : MonoBehaviour
                 health -= damage;
             }
         }
+    }
+    protected virtual float CalcResistDamage(IBattle attacker, float damage) 
+    {
+        if (attacker.currentType == this.currentType)
+        {
+            //Reduce damage
+            damage *= .75f;
+        }
+        float typeMod = 1;
+        if (currentType != IType.ElementType.NoType)
+        {
+            typeMod = statModifiers[(int)currentType, 1];
+        }
+        float defense = baseStats[1] * typeMod;
+        for (int i = 0; i < turnEffects.Count; i++) 
+        {
+            if (turnEffects[i].statType == IType.Stat.Defense) 
+            {
+                defense *= turnEffects[i].value;
+                if (attacker.currentType == turnEffects[i].elementType) 
+                {
+                    defense *= 1.25f;
+                } 
+            }
+        }
+        damage /= defense;
+
+        return damage;
     }
     public virtual void TakeEnergy(float usage)
     {
@@ -78,14 +156,6 @@ public class IBattle : MonoBehaviour
 
         return result;
     }
-
-    public void AttackTarget(IBattle target, float damage) 
-    {
-        if (target) 
-        {
-            target.TakeDamage(damage);
-        }
-    }
     public virtual void UseMove()
     {
         if (!isAlive()) 
@@ -105,6 +175,11 @@ public class IBattle : MonoBehaviour
     }
     public virtual float GetSpeed() 
     {
-        return speedStat;
+        return baseStats[2];
+    }
+    public virtual void OnBattleStart() 
+    {
+        turnEffects = new List<BattleEffect>();
+        turnDamage = new List<BattleEffect>();
     }
 }

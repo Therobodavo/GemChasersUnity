@@ -31,6 +31,7 @@ public class BattleArea : MonoBehaviour
         battleUI = player.GetComponent<PlayerManager>().battleUI;
         mainUI = GameObject.Find("Canvas").GetComponent<UI>();
         player.GetComponent<PlayerManager>().toggleCamera(1);
+        player.GetComponent<PlayerManager>().toggleModel(1);
         //Enable Battle UI
         if (!battleUI.activeSelf) 
         {
@@ -51,6 +52,26 @@ public class BattleArea : MonoBehaviour
 
         if (currentBattleState == GameState.PlayerStartTurn)
         {
+            //Decrease Effect turns
+            LowerEffects(player.GetComponent<IBattle>());
+
+            //Add Energy to Everyone Alive
+            player.GetComponent<PlayerManager>().Relax(20);
+            player.GetComponent<PlayerManager>().isPassing = false;
+
+
+            for (int i = 0; i < enemies.Length; i++) 
+            {
+                if (enemies[i]) 
+                {
+                    if (enemies[i].GetComponent<IBattle>().isAlive()) 
+                    {
+                        LowerEffects(enemies[i].GetComponent<IBattle>());
+                        enemies[i].GetComponent<IBattle>().Relax(20);
+                        enemies[i].GetComponent<IBattle>().isPassing = false;
+                    }
+                }
+            }
             mainUI.ResetTurn();
             currentBattleState = GameState.PlayerMoveSelection;
             player.GetComponent<PlayerManager>().toggleCamera(1);
@@ -67,14 +88,26 @@ public class BattleArea : MonoBehaviour
             {
                 if (e) 
                 {
+                    //Get e speed
+                    float enemySpeed = CalcTurnSpeed(e.GetComponent<IBattle>().turnEffects, e.GetComponent<IBattle>().GetSpeed());
+                    
+
+                    bool added = false;
                     for (int i = turnOrder.Count - 1; i >= 0; i--)
                     {
                         //Math to determine move order
-                        if (e.GetComponent<IBattle>().GetSpeed() <= turnOrder[i].GetComponent<IBattle>().GetSpeed())
+                        float otherSpeed = CalcTurnSpeed(turnOrder[i].turnEffects, turnOrder[i].GetComponent<IBattle>().GetSpeed());
+
+                        if (enemySpeed <= otherSpeed)
                         {
                             turnOrder.Insert(i + 1,e.GetComponent<IBattle>());
+                            added = true;
                             break;
                         }
+                    }
+                    if (!added) 
+                    {
+                        turnOrder.Insert(0,e.GetComponent<IBattle>());
                     }
                 }
             }
@@ -102,12 +135,13 @@ public class BattleArea : MonoBehaviour
                     attackStartTime = Time.timeSinceLevelLoad;
                     attackStart = true;
                     ResetPlatforms();
-                    Debug.Log(Time.timeSinceLevelLoad + " - " + turnIndex);
                     if (turnIndex < turnOrder.Count && turnIndex >= 0)
                     {
                         if (turnOrder[turnIndex].isAlive())
                         {
                             SetCurrentAttacking();
+                            TriggerTurnDamage();
+                            TriggerPassives();
                         }
                     }
                 }
@@ -118,7 +152,10 @@ public class BattleArea : MonoBehaviour
                     //Run attack
                     if (turnOrder[turnIndex])
                     {
-                        turnOrder[turnIndex].UseMove();
+                        if (!turnOrder[turnIndex].isPassing) 
+                        {
+                            turnOrder[turnIndex].UseMove();
+                        }        
                         turnIndex++;
                     }
 
@@ -132,6 +169,67 @@ public class BattleArea : MonoBehaviour
             }
         }
     }
+    private void LowerEffects(IBattle obj) 
+    {
+        for (int j = obj.turnEffects.Count - 1; j >= 0; j--)
+        {
+            if (obj.turnEffects[j].numUses - 1 <= 0)
+            {
+                //remove
+                obj.turnEffects.RemoveAt(j);
+            }
+            else
+            {
+                obj.turnEffects[j].numUses -= 1;
+            }
+        }
+        for (int j = obj.turnDamage.Count - 1; j >= 0; j--)
+        {
+            if (obj.turnDamage[j].numUses - 1 <= 0)
+            {
+                //remove
+                obj.turnDamage.RemoveAt(j);
+            }
+            else
+            {
+                obj.turnDamage[j].numUses -= 1;
+            }
+        }
+    }
+    private void TriggerPassives() 
+    {
+        for (int i = 0; i < turnOrder[turnIndex].turnEffects.Count; i++) 
+        {
+            if (turnOrder[turnIndex].turnEffects[i].statType == IType.Stat.Health) 
+            {
+                turnOrder[turnIndex].Heal(turnOrder[turnIndex].turnEffects[i].value);
+            }
+            if (turnOrder[turnIndex].turnEffects[i].statType == IType.Stat.Energy)
+            {
+                turnOrder[turnIndex].Relax(turnOrder[turnIndex].turnEffects[i].value);
+            }
+        }
+    }
+    private void TriggerTurnDamage() 
+    {
+        for (int i = 0; i < turnOrder[turnIndex].turnDamage.Count; i++) 
+        {
+            Debug.Log("TURN HIT BOI");
+            BattleEffect currentEffect = turnOrder[turnIndex].turnDamage[i];
+            turnOrder[turnIndex].TakeDamage(currentEffect.attacker, currentEffect.value, false);
+        }
+    }
+    private float CalcTurnSpeed(List<BattleEffect> effects, float currentSpeed) 
+    {
+        for (int i = 0; i < effects.Count; i++)
+        {
+            if (effects[i].statType == IType.Stat.Speed)
+            {
+                currentSpeed += effects[i].value;
+            }
+        }
+        return currentSpeed;
+    }
     private void OnBattleEnd() 
     {
         player.GetComponent<PlayerManager>().currentBattleArea = null;
@@ -139,6 +237,7 @@ public class BattleArea : MonoBehaviour
         currentBattleState = GameState.BattleEnd;
         mainUI.ResetTurn();
         battleUI.SetActive(false);
+        player.GetComponent<PlayerManager>().toggleModel(0);
         player.GetComponent<PlayerManager>().toggleCamera(0);
         player.transform.parent = null;
         Destroy(gameObject);
@@ -180,8 +279,10 @@ public class BattleArea : MonoBehaviour
             {
                 if (!enemies[i]) 
                 {
+                    
                     enemiesAdded++;
                     canAdd = true;
+                    obj.GetComponent<IBattle>().OnBattleStart();
                     obj.GetComponent<IBattle>().inBattle = true;
                     obj.GetComponent<IBattle>().currentBattleArea = this;
                     SetEnemy(obj, i);

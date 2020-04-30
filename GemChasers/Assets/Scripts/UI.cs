@@ -13,6 +13,7 @@ public class UI : MonoBehaviour
     public GameObject playerHealthBarImage;
     public GameObject playerEnergyBarImage;
     public GameObject moveInfoHUD;
+    public GameObject[] moveInfoHUDParts;
 
     public GameObject[] enemyHealthBarImages;
     public GameObject[] enemyHealthBarText;
@@ -49,7 +50,7 @@ public class UI : MonoBehaviour
     public int selectedEnemyTarget = -1;
 
     private int[] possibleAngles = {0,-60,-120,-180,-240,-300};
-
+    private int currentMoveIndex = -1;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -92,6 +93,26 @@ public class UI : MonoBehaviour
         {
             if (isHovering || isSelected)
             {
+                int indexToUse = -1;
+                if (isHovering)
+                {
+                    //Set HUD info to hover move
+                    indexToUse = currentMoveIndex;
+                }
+                else 
+                {
+                    if (isSelected) 
+                    {
+                        //Set HUD info to selected move
+                        indexToUse = player.GetComponent<PlayerManager>().selectedMoveIndex;
+                    }
+                }
+                //Debug.Log("MOVE BUFF 2: " + ((IType.BuffType)player.GetComponent<PlayerManager>().moves[indexToUse].buffs[1].GetBuffID()).ToString());
+                //SET HUD
+                moveInfoHUDParts[1].GetComponent<Text>().text = ((IType.BuffType)player.GetComponent<PlayerManager>().moves[indexToUse].buffs[0].GetBuffID()).ToString();
+                moveInfoHUDParts[2].GetComponent<Text>().text = ((IType.BuffType)player.GetComponent<PlayerManager>().moves[indexToUse].buffs[1].GetBuffID()).ToString();
+                moveInfoHUDParts[3].GetComponent<Text>().text = ((IType.GemType)player.GetComponent<PlayerManager>().moves[indexToUse].gemType.gemTypeID).ToString();
+                moveInfoHUDParts[4].GetComponent<Text>().text = player.GetComponent<PlayerManager>().moves[indexToUse].GetEnergyCost().ToString();
                 moveInfoHUD.SetActive(true);
             }
             else 
@@ -100,32 +121,10 @@ public class UI : MonoBehaviour
             }
             if (Input.mousePosition.y >= outerWheel.transform.position.y && angleVector.magnitude <= (halfWheel / 2))
             {
-                isHovering = true;
-                if (angle >= 0 && angle <= 60)
-                {
-                    currentHoverAngle = 60;
-                }
-                else if (angle > 60 && angle <= 120)
-                {
-                    currentHoverAngle = 0;
-                }
-                else
-                {
-                    currentHoverAngle = -60;
-                }
-
+                OnHover(angle);
                 if (Input.GetMouseButtonDown(0) && !isLocked && currentHoverAngle != currentSelectedAngle)
                 {
-                    isSelected = true;
-                    SwitchEnemyButtons(true);
-                    currentSelectedAngle = currentHoverAngle;
-                    selected.transform.rotation = Quaternion.AngleAxis(currentSelectedAngle, Vector3.forward);
-
-                    if (!selected.activeSelf)
-                    {
-                        selected.SetActive(true);
-                    }
-                    selectTargetText.SetActive(true);
+                    OnSelected();
                 }
                 hover.transform.rotation = Quaternion.AngleAxis(currentHoverAngle, Vector3.forward);
             }
@@ -201,16 +200,13 @@ public class UI : MonoBehaviour
     {
         isLocked = true;
 
-        //Temporary damage dealt
-        /* if (player.GetComponent<PlayerManager>().currentBattleArea && selectedEnemyTarget != -1) 
-         {
-             if (player.GetComponent<PlayerManager>().currentBattleArea.GetEnemiesAlive()[selectedEnemyTarget])
-             {
-                 player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[selectedEnemyTarget].TakeDamage(50);
-             }
-         }*/
-        //Change State
-
+        togglePlayerTurnInput(false);
+        player.GetComponent<PlayerManager>().currentBattleArea.currentBattleState = BattleArea.GameState.PlayerMoveSelected;
+    }
+    public void Pass() 
+    {
+        player.GetComponent<PlayerManager>().isPassing = true;
+        isLocked = true;
         togglePlayerTurnInput(false);
         player.GetComponent<PlayerManager>().currentBattleArea.currentBattleState = BattleArea.GameState.PlayerMoveSelected;
     }
@@ -265,6 +261,56 @@ public class UI : MonoBehaviour
             }
         }
     }
+    private void OnHover(float angle) 
+    {
+        isHovering = true;
+        if (angle >= 0 && angle <= 60)
+        {
+            currentHoverAngle = 60;
+            currentMoveIndex = 0;
+        }
+        else if (angle > 60 && angle <= 120)
+        {
+            currentHoverAngle = 0;
+            currentMoveIndex = 1;
+        }
+        else
+        {
+            currentHoverAngle = -60;
+            currentMoveIndex = 2;
+        }
+    }
+    private void OnSelected() 
+    {
+        if (player.GetComponent<PlayerManager>().moves[currentMoveIndex].GetEnergyCost() <= player.GetComponent<PlayerManager>().GetEnergy())
+        {
+            isSelected = true;
+            
+            currentSelectedAngle = currentHoverAngle;
+            player.GetComponent<PlayerManager>().selectedMoveIndex = currentMoveIndex;
+            selected.transform.rotation = Quaternion.AngleAxis(currentSelectedAngle, Vector3.forward);
+            if (!selected.activeSelf)
+            {
+                selected.SetActive(true);
+            }
+
+            Debug.Log(player.GetComponent<PlayerManager>().moves[player.GetComponent<PlayerManager>().selectedMoveIndex].isTargetingSelf());
+            //If selected move attacks all or move targets self
+            if (player.GetComponent<PlayerManager>().moves[player.GetComponent<PlayerManager>().selectedMoveIndex].targetAllSide || player.GetComponent<PlayerManager>().moves[player.GetComponent<PlayerManager>().selectedMoveIndex].isTargetingSelf())
+            {
+                selectTargetText.SetActive(false);
+                SwitchEnemyButtons(false);
+                switchButton("Lock In", true, LockIn);
+            }
+            else 
+            {
+                //If player needs to select a target
+                selectTargetText.SetActive(true);
+                SwitchEnemyButtons(true);
+                switchButton("Lock In", false, LockIn);
+            }
+        }
+    }
     private void switchButton(string text, bool state, UnityEngine.Events.UnityAction funt = null) 
     {
         if (state)
@@ -298,6 +344,7 @@ public class UI : MonoBehaviour
         outerIndex = -1;
         innerIndex = -1;
         selectedEnemyTarget = -1;
+        player.GetComponent<PlayerManager>().isPassing = false;
         SwitchEnemyButtons(false);
         switchButton("Spin",true,Spin);
 

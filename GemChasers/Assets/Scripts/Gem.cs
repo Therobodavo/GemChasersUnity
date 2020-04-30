@@ -7,6 +7,7 @@ public class Gem
     public int gemTypeID = 0;
     public Sprite gemImage;
     protected LevelManager lm;
+
     public Gem(IType.GemType gemType) 
     {
         gemTypeID = (int)gemType;
