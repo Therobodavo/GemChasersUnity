@@ -15,13 +15,14 @@ public class PlayerManager : IBattle
     public GameObject battleUI;
     public GameObject modelWandering;
     public GameObject modelBattle;
-
+    public Quest currentQuest;
     public UI UIScript;
 
     public Buff[] wheelBuffs;
     public Gem[] wheelGems;
     public PlayerAttack[] moves;
     public int selectedMoveIndex = -1;
+    public bool talkingToNPC = false;
     public override void Start()
     {
         base.Start();
@@ -33,7 +34,8 @@ public class PlayerManager : IBattle
         wheelBuffs = new Buff[12];
         wheelGems = new Gem[6];
         moves = new PlayerAttack[3];
-
+        currentQuest = new Quest(0, IType.QuestType.TalkQuest);
+        currentQuest.SetTalkTarget(0);
         //Default Buffs
         wheelBuffs[0] = new StrengthBuff();
         wheelBuffs[1] = new SpeedBuff();
@@ -186,7 +188,7 @@ public class PlayerManager : IBattle
             }
         }
     }
-    protected override void OnDeath()
+    public override void OnDeath()
     {
         //What happens when player dies
         SceneManager.LoadScene("MainScene");

@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class Enemy : IBattle
 {
     public UI playerUI;
+    public PlayerManager player;
+    public IType.EnemyType speciesType;
     public override void Start()
     {
         base.Start();
@@ -16,6 +18,7 @@ public class Enemy : IBattle
         energy = 100;
         currentType = IType.ElementType.NoType;
         playerUI = GameObject.Find("Canvas").GetComponent<UI>();
+        player = GameObject.Find("Player").GetComponent<PlayerManager>();
     }
 
     // Update is called once per frame
@@ -73,6 +76,20 @@ public class Enemy : IBattle
             {
                 playerUI.enemyUI[index].transform.GetChild(4).GetComponent<Image>().sprite = IconHUD;
                 playerUI.enemyTypeIcon[index].GetComponent<Image>().sprite = lm.elementIcons[(int)currentType];
+            }
+        }
+    }
+    public override void OnDeath()
+    {
+        base.OnDeath();
+        if (player.currentQuest != null) 
+        {
+            for (int i = 0; i < player.currentQuest.enemyTargets.Count;i++) 
+            {
+                if (player.currentQuest.enemyTargets[i] == speciesType) 
+                {
+                    player.currentQuest.numKilled[(int)speciesType]++;
+                }
             }
         }
     }

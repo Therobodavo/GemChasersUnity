@@ -9,5 +9,6 @@ public class CoconutEnemy : Enemy
         base.Start();
         IconHUD = lm.CoconutIconHUD;
         currentType = IType.ElementType.Heat;
+        speciesType = IType.EnemyType.Coconut;
     }
 }

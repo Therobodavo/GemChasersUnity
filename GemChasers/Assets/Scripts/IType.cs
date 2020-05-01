@@ -10,6 +10,8 @@ public static class IType
     public enum MoveType { InstantAttack, InstantPassive, DelayedPassive, DelayedAttack };
 
     public enum Stat {Attack, Defense, Speed, Health, Energy};
+    public enum QuestType {KillQuest, CollectQuest,TalkQuest};
+    public enum EnemyType { Coconut,Mushroom};
 
 
 }

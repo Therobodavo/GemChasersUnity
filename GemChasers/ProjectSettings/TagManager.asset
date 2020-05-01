@@ -16,6 +16,7 @@ TagManager:
   - PlayerBattleInputUI
   - EnemyBattleElementTypeIcon
   - BattleSpawnPoint
+  - NPC
   layers:
   - Default
   - TransparentFX

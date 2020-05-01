@@ -44,7 +44,7 @@ public class IBattle : MonoBehaviour
             OnDeath();
         }
     }
-    protected virtual void OnDeath() 
+    public virtual void OnDeath() 
     {
         currentBattleArea.RemoveEnemy(gameObject);
     }

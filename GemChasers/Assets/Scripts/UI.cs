@@ -35,6 +35,11 @@ public class UI : MonoBehaviour
     private GameObject playerInputUI;
     public GameObject player;
     public GameObject selectTargetText;
+    public GameObject questHUD;
+    public GameObject pressEText;
+    public GameObject[] npcs;
+    public GameObject dialogueObject;
+    public Text dialogueText;
 
     private float halfWheel = 0;
     private float currentHoverAngle = -1;
@@ -66,10 +71,16 @@ public class UI : MonoBehaviour
         enemyUI = GameObject.FindGameObjectsWithTag("EnemyBattleHUD");
         playerInputUI = GameObject.FindGameObjectWithTag("PlayerBattleInputUI");
         enemyTypeIcon = GameObject.FindGameObjectsWithTag("EnemyBattleElementTypeIcon");
+        questHUD = GameObject.Find("QuestDisplay");
+        pressEText = GameObject.Find("PressE");
+        npcs = GameObject.FindGameObjectsWithTag("NPC");
     }
     void Start()
     {
         battleUI.SetActive(false);
+        dialogueObject.SetActive(false);
+        questHUD.SetActive(false);
+        pressEText.SetActive(false);
         halfWheel = outerWheel.GetComponent<Image>().rectTransform.rect.width * outerWheel.GetComponent<Image>().rectTransform.localScale.x;
         switchButton("Spin", true, Spin);
     }
@@ -224,6 +235,49 @@ public class UI : MonoBehaviour
 
         //Update type
         playerCurrentTypeImage.GetComponent<Image>().sprite = player.GetComponent<PlayerManager>().lm.elementIcons[(int)player.GetComponent<PlayerManager>().currentType];
+
+        if (player.GetComponent<PlayerManager>().currentQuest != null && !player.GetComponent<PlayerManager>().inBattle)
+        {
+            if (!questHUD.activeSelf)
+            {
+                questHUD.SetActive(true);
+            }
+            questHUD.transform.GetChild(1).GetComponent<Text>().text = player.GetComponent<PlayerManager>().currentQuest.GetString();
+        }
+        else 
+        {
+            if (questHUD.activeSelf)
+            {
+                questHUD.SetActive(false);
+            }
+        }
+
+       bool show = false;
+        for (int i = 0; i < npcs.Length; i++) 
+        {
+            if ((player.transform.position - npcs[i].transform.position).magnitude < 2 && !player.GetComponent<PlayerManager>().inBattle && !player.GetComponent<PlayerManager>().talkingToNPC) 
+            {
+                    show = true;
+                    break;
+                               
+            }
+        }
+        if (!show)
+        {
+            if (pressEText.activeSelf)
+            {
+                pressEText.SetActive(false);
+            }
+
+        }
+        else 
+        {
+            if (!pressEText.activeSelf) 
+            {
+                pressEText.SetActive(true);
+            }
+        }
+        
     }
     private void UpdateEnemyUI() 
     {

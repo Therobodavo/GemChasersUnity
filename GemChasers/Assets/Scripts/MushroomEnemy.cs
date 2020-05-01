@@ -9,5 +9,6 @@ public class MushroomEnemy : Enemy
         base.Start();
         IconHUD = lm.MushroomIconHUD;
         currentType = IType.ElementType.Forest;
+        speciesType = IType.EnemyType.Mushroom;
     }
 }
