@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4151458377707682880}
   - component: {fileID: 4151458377707682911}
-  - component: {fileID: 4151458377707682881}
   - component: {fileID: 3290690410459589301}
+  - component: {fileID: -5113708809966768174}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: CoconutEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +30,7 @@ Transform:
   m_LocalPosition: {x: 9.9, y: 0.97, z: 2.3559675}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8525738668404361345}
+  - {fileID: 273095555779911981}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -47,26 +47,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4151458377707682881
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4151458377707682910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a2e959da6aa2d5458ca23777b1e2c18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inBattle: 0
-  baseStats:
-  - 12
-  - 1
-  - 1
-  currentType: 6
-  comboCount: 0
-  currentBattleArea: {fileID: 0}
 --- !u!54 &3290690410459589301
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -83,7 +63,31 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
---- !u!1001 &3687101104146113435
+--- !u!114 &-5113708809966768174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4151458377707682910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36833b7dbbd7f27498f251b26a18981f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inBattle: 0
+  baseStats:
+  - 12
+  - 1
+  - 1
+  currentType: 6
+  comboCount: 0
+  currentBattleArea: {fileID: 0}
+  isPassing: 0
+  IconHUD: {fileID: 0}
+  lm: {fileID: 0}
+  playerUI: {fileID: 0}
+--- !u!1001 &5093727551980194359
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -95,6 +99,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: feec1b0135809634282a60c650559552, type: 2}
+    - target: {fileID: -4861924686910468554, guid: bb79f84749e55fa44b96c9868e62b411,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4861924686910468554, guid: bb79f84749e55fa44b96c9868e62b411,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: bb79f84749e55fa44b96c9868e62b411,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -170,16 +184,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: coconutEnemy
       objectReference: {fileID: 0}
-    - target: {fileID: -927199367670048503, guid: bb79f84749e55fa44b96c9868e62b411,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bb79f84749e55fa44b96c9868e62b411, type: 3}
---- !u!4 &8525738668404361345 stripped
+--- !u!4 &273095555779911981 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: bb79f84749e55fa44b96c9868e62b411,
     type: 3}
-  m_PrefabInstance: {fileID: 3687101104146113435}
+  m_PrefabInstance: {fileID: 5093727551980194359}
   m_PrefabAsset: {fileID: 0}

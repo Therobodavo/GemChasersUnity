@@ -22,7 +22,7 @@ public class PlayerManager : IBattle
     public Gem[] wheelGems;
     public PlayerAttack[] moves;
     public int selectedMoveIndex = -1;
-    protected override void Start()
+    public override void Start()
     {
         base.Start();
         toggleCamera(0);
@@ -147,8 +147,35 @@ public class PlayerManager : IBattle
     }
     private void CreateBattleArea(GameObject hitEnemy) 
     {
+        GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("BattleSpawnPoint");
+        GameObject closest = null;
+        if (spawnPoints.Length > 0) 
+        {
+            for (int i = 0; i < spawnPoints.Length; i++) 
+            {
+                if (!closest)
+                {
+                    closest = spawnPoints[i];
+                }
+                else 
+                {
+                    if ((transform.position - spawnPoints[i].transform.position).magnitude < (transform.position - closest.transform.position).magnitude) 
+                    {
+                        closest = spawnPoints[i];
+                    }
+                }
+            }
+        }
+        GameObject battle;
+        if (closest != null)
+        {
+            battle = Instantiate(battleArea, closest.transform.position, closest.transform.rotation);
+        }
+        else 
+        {
+           battle = Instantiate(battleArea, new Vector3(0,1,0), Quaternion.identity);
+        }
         
-        GameObject battle = Instantiate(battleArea,new Vector3(0,1,0),Quaternion.identity);
         currentBattleArea = battle.GetComponent<BattleArea>();
         currentBattleArea.SetSpawnPoint();
         if (hitEnemy) 
@@ -192,5 +219,14 @@ public class PlayerManager : IBattle
         
 
         return speedTurn;
+    }
+    public void OnBattleEnd() 
+    {
+        currentBattleArea = null;
+        inBattle = false;
+        toggleModel(0);
+        toggleCamera(0);
+        transform.parent = null;
+        currentType = IType.ElementType.NoType;
     }
 }

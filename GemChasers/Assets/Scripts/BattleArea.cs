@@ -232,14 +232,10 @@ public class BattleArea : MonoBehaviour
     }
     private void OnBattleEnd() 
     {
-        player.GetComponent<PlayerManager>().currentBattleArea = null;
-        player.GetComponent<PlayerManager>().inBattle = false;
         currentBattleState = GameState.BattleEnd;
         mainUI.ResetTurn();
         battleUI.SetActive(false);
-        player.GetComponent<PlayerManager>().toggleModel(0);
-        player.GetComponent<PlayerManager>().toggleCamera(0);
-        player.transform.parent = null;
+        player.GetComponent<PlayerManager>().OnBattleEnd();
         Destroy(gameObject);
     }
     public GameObject[] GetSpots() 
@@ -282,7 +278,7 @@ public class BattleArea : MonoBehaviour
                     
                     enemiesAdded++;
                     canAdd = true;
-                    obj.GetComponent<IBattle>().OnBattleStart();
+                    obj.GetComponent<IBattle>().OnBattleStart(i);
                     obj.GetComponent<IBattle>().inBattle = true;
                     obj.GetComponent<IBattle>().currentBattleArea = this;
                     SetEnemy(obj, i);

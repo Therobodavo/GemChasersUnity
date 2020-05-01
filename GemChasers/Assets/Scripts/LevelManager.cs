@@ -6,8 +6,9 @@ public class LevelManager : MonoBehaviour
 {
     public Sprite[] buffImages;
     public Sprite[] gemImages;
-
-
+    public Sprite[] elementIcons;
+    public Sprite CoconutIconHUD;
+    public Sprite MushroomIconHUD;
     void Start()
     {
         

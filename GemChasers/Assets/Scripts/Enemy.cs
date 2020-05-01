@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Enemy : IBattle
 {
-    protected override void Start()
+    public UI playerUI;
+    public override void Start()
     {
         base.Start();
         baseStats[0] = 10;
@@ -12,7 +14,8 @@ public class Enemy : IBattle
         baseStats[2] = 3;
         health = 100;
         energy = 100;
-        currentType = IType.ElementType.Heat;
+        currentType = IType.ElementType.NoType;
+        playerUI = GameObject.Find("Canvas").GetComponent<UI>();
     }
 
     // Update is called once per frame
@@ -59,6 +62,18 @@ public class Enemy : IBattle
                 typeMod = statModifiers[(int)currentType, 0];
             }
             currentBattleArea.player.GetComponent<PlayerManager>().TakeDamage(this,(baseStats[0] * typeMod), false);
+        }
+    }
+    public override void OnBattleStart(int index)
+    {
+        base.OnBattleStart(index);
+        if (playerUI) 
+        {
+            if (playerUI.enemyUI[index])
+            {
+                playerUI.enemyUI[index].transform.GetChild(4).GetComponent<Image>().sprite = IconHUD;
+                playerUI.enemyTypeIcon[index].GetComponent<Image>().sprite = lm.elementIcons[(int)currentType];
+            }
         }
     }
 }

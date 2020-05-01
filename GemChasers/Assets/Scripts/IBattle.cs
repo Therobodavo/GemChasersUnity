@@ -7,7 +7,8 @@ public class IBattle : MonoBehaviour
     public bool inBattle = false;
     protected float health = 100;
     protected float energy = 100;
-
+    public float MAX_HEALTH = 100;
+    public float MAX_ENERGY = 100;
     //Attack,Defense,Speed
     public float[] baseStats = {12,1,1};
     public IType.ElementType currentType = IType.ElementType.NoType;
@@ -26,10 +27,14 @@ public class IBattle : MonoBehaviour
         {1,1.2f,-1},    //Space
         {1,1,0}         //Water 
     };
-    protected virtual void Start()
+
+    public Sprite IconHUD;
+    public LevelManager lm;
+    public virtual void Start()
     {
         turnEffects = new List<BattleEffect>();
         turnDamage = new List<BattleEffect>();
+        lm = GameObject.Find("LevelManager").GetComponent<LevelManager>();
     }
 
     protected virtual void Update()
@@ -177,9 +182,10 @@ public class IBattle : MonoBehaviour
     {
         return baseStats[2];
     }
-    public virtual void OnBattleStart() 
+    public virtual void OnBattleStart(int index) 
     {
         turnEffects = new List<BattleEffect>();
         turnDamage = new List<BattleEffect>();
+
     }
 }

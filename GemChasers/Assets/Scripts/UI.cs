@@ -11,7 +11,10 @@ public class UI : MonoBehaviour
     public GameObject battleUI;
     public GameObject wanderingUI;
     public GameObject playerHealthBarImage;
+    public GameObject playerHealthBarText;
     public GameObject playerEnergyBarImage;
+    public GameObject playerEnergyBarText;
+    public GameObject playerCurrentTypeImage;
     public GameObject moveInfoHUD;
     public GameObject[] moveInfoHUDParts;
 
@@ -21,6 +24,7 @@ public class UI : MonoBehaviour
     public GameObject[] enemyEnergyBarText;
     public GameObject[] enemyButtons;
     public GameObject[] enemyUI;
+    public GameObject[] enemyTypeIcon;
 
     public GameObject[] gems;
     public GameObject[] buffs;
@@ -61,6 +65,7 @@ public class UI : MonoBehaviour
         enemyButtons = GameObject.FindGameObjectsWithTag("EnemyBattleButton");
         enemyUI = GameObject.FindGameObjectsWithTag("EnemyBattleHUD");
         playerInputUI = GameObject.FindGameObjectWithTag("PlayerBattleInputUI");
+        enemyTypeIcon = GameObject.FindGameObjectsWithTag("EnemyBattleElementTypeIcon");
     }
     void Start()
     {
@@ -212,8 +217,13 @@ public class UI : MonoBehaviour
     }
     private void UpdatePlayerBars() 
     {
-        playerHealthBarImage.GetComponent<Image>().fillAmount = player.GetComponent<PlayerManager>().GetHealth() / 100;
-        playerEnergyBarImage.GetComponent<Image>().fillAmount = player.GetComponent<PlayerManager>().GetEnergy() / 100;
+        playerHealthBarImage.GetComponent<Image>().fillAmount = player.GetComponent<PlayerManager>().GetHealth() / player.GetComponent<PlayerManager>().MAX_HEALTH;
+        playerEnergyBarImage.GetComponent<Image>().fillAmount = player.GetComponent<PlayerManager>().GetEnergy() / player.GetComponent<PlayerManager>().MAX_ENERGY;
+        playerHealthBarText.GetComponent<Text>().text = ((int)player.GetComponent<PlayerManager>().GetHealth()).ToString();
+        playerEnergyBarText.GetComponent<Text>().text = ((int)player.GetComponent<PlayerManager>().GetEnergy()).ToString();
+
+        //Update type
+        playerCurrentTypeImage.GetComponent<Image>().sprite = player.GetComponent<PlayerManager>().lm.elementIcons[(int)player.GetComponent<PlayerManager>().currentType];
     }
     private void UpdateEnemyUI() 
     {
@@ -228,13 +238,13 @@ public class UI : MonoBehaviour
                     bool[] areEnemiesAlive = playerScript.currentBattleArea.GetEnemiesAlive();
                     for (int i = 0; i < 3; i++) 
                     {
-                        UpdateEnemyBar(areEnemiesAlive, enemyUI[i], enemyHealthBarImages[i], i);
+                        UpdateEnemyBar(areEnemiesAlive, enemyUI[i], i);
                     }
                 }
             }
         }
     }
-    private void UpdateEnemyBar(bool[] alive,GameObject UI, GameObject UIImage, int index) 
+    private void UpdateEnemyBar(bool[] alive,GameObject UI, int index) 
     {
         if (alive[index])
         {
@@ -244,8 +254,10 @@ public class UI : MonoBehaviour
                 IBattle enemyScript = player.GetComponent<PlayerManager>().currentBattleArea.GetEnemyScripts()[index];
                 if (enemyScript) 
                 {
-                    UIImage.GetComponent<Image>().fillAmount = enemyScript.GetHealth() / 100;
-                    UIImage.GetComponent<Image>().fillAmount = enemyScript.GetHealth() / 100;
+                    enemyHealthBarImages[index].GetComponent<Image>().fillAmount = enemyScript.GetHealth() / enemyScript.MAX_HEALTH;
+                    enemyEnergyBarImages[index].GetComponent<Image>().fillAmount = enemyScript.GetEnergy() / enemyScript.MAX_ENERGY;
+                    enemyHealthBarText[index].GetComponent<Text>().text = ((int)enemyScript.GetHealth()).ToString();
+                    enemyEnergyBarText[index].GetComponent<Text>().text = ((int)enemyScript.GetEnergy()).ToString();
                 }
             }
             else
@@ -294,7 +306,6 @@ public class UI : MonoBehaviour
                 selected.SetActive(true);
             }
 
-            Debug.Log(player.GetComponent<PlayerManager>().moves[player.GetComponent<PlayerManager>().selectedMoveIndex].isTargetingSelf());
             //If selected move attacks all or move targets self
             if (player.GetComponent<PlayerManager>().moves[player.GetComponent<PlayerManager>().selectedMoveIndex].targetAllSide || player.GetComponent<PlayerManager>().moves[player.GetComponent<PlayerManager>().selectedMoveIndex].isTargetingSelf())
             {

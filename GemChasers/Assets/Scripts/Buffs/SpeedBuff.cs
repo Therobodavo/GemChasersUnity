@@ -14,6 +14,7 @@ public class SpeedBuff : Buff
         instantAttackCombinations[0] = IType.BuffType.Strength;
         instantAttackCombinations[2] = IType.BuffType.Combo;
         instantAttackCombinations[3] = IType.BuffType.Split;
+        instantAttackCombinations[3] = IType.BuffType.Speed;
 
         instantPassiveCombinations = new IType.BuffType[3];
 
