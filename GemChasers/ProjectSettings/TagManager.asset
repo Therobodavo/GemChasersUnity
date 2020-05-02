@@ -17,6 +17,8 @@ TagManager:
   - EnemyBattleElementTypeIcon
   - BattleSpawnPoint
   - NPC
+  - PathBlock
+  - Spawner
   layers:
   - Default
   - TransparentFX

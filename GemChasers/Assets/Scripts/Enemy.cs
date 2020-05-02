@@ -8,36 +8,72 @@ public class Enemy : IBattle
     public UI playerUI;
     public PlayerManager player;
     public IType.EnemyType speciesType;
+    public Path path = null;
+    public GameObject currentPathTarget;
+    public float spawnTime;
+    public float despawnTime = 10f;
     public override void Start()
     {
         base.Start();
-        baseStats[0] = 10;
-        baseStats[1] = 1;
-        baseStats[2] = 3;
-        health = 100;
-        energy = 100;
         currentType = IType.ElementType.NoType;
         playerUI = GameObject.Find("Canvas").GetComponent<UI>();
         player = GameObject.Find("Player").GetComponent<PlayerManager>();
+        
     }
 
     // Update is called once per frame
     protected override void Update()
     {
         base.Update();
+        if (path != null && currentPathTarget != null && !inBattle) 
+        {
+            transform.position += (currentPathTarget.transform.position - transform.position).normalized * 5 * Time.deltaTime;
+            if (Time.timeSinceLevelLoad - spawnTime >= despawnTime)
+            {
+                Destroy(this.gameObject);
+            }
+        }
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "BattleArea" && !inBattle) 
+        if (other.tag == "BattleArea" && !inBattle)
         {
             BattleArea area = other.GetComponent<BattleArea>();
-            if (area.AreOpenSpots()) 
+            if (area.AreOpenSpots())
             {
                 currentBattleArea = area;
                 currentBattleArea.AddCreature(gameObject, true);
                 inBattle = true;
             }
+            else 
+            {
+                Destroy(this.gameObject);
+            }
         }
+        else if (other.tag == "PathBlock") 
+        {
+            currentPathTarget = GetNextSpot(other.gameObject);
+        }
+    }
+    private GameObject GetNextSpot(GameObject current) 
+    {
+        GameObject result = current;
+        for (int i = 0; i < path.spots.Length; i++) 
+        {
+            if(path.spots[i] == current) 
+            {
+                if (i + 1 >= path.spots.Length)
+                {
+                    result = path.spots[0];
+                }
+                else 
+                {
+                    result = path.spots[i + 1];
+                }
+                break;
+            }
+        }
+        return result;
     }
     private void OnTriggerStay(Collider other)
     {

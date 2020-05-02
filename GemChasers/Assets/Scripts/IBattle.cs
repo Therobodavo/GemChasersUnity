@@ -5,8 +5,8 @@ using UnityEngine;
 public class IBattle : MonoBehaviour
 {
     public bool inBattle = false;
-    protected float health = 100;
-    protected float energy = 100;
+    protected float health;
+    protected float energy;
     public float MAX_HEALTH = 100;
     public float MAX_ENERGY = 100;
     //Attack,Defense,Speed
@@ -35,6 +35,9 @@ public class IBattle : MonoBehaviour
         turnEffects = new List<BattleEffect>();
         turnDamage = new List<BattleEffect>();
         lm = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        SetStats();
+        health = MAX_HEALTH;
+        energy = MAX_ENERGY;
     }
 
     protected virtual void Update()
@@ -43,6 +46,11 @@ public class IBattle : MonoBehaviour
         {
             OnDeath();
         }
+    }
+    public virtual void SetStats() 
+    {
+        MAX_HEALTH = 100;
+        MAX_ENERGY = 100;
     }
     public virtual void OnDeath() 
     {
@@ -56,9 +64,9 @@ public class IBattle : MonoBehaviour
     {
         if (incomingHealth > 0) 
         {
-            if (health + incomingHealth > 100)
+            if (health + incomingHealth > MAX_HEALTH)
             {
-                health = 100;
+                health = MAX_HEALTH;
             }
             else 
             {
@@ -70,9 +78,9 @@ public class IBattle : MonoBehaviour
     {
         if (incomingEnergy > 0)
         {
-            if (energy + incomingEnergy > 100)
+            if (energy + incomingEnergy > MAX_ENERGY)
             {
-                energy = 100;
+                energy = MAX_ENERGY;
             }
             else
             {
@@ -89,7 +97,7 @@ public class IBattle : MonoBehaviour
         if (isCombo)
         {
             comboCount++;
-            damage *= Mathf.Pow(1.5f,comboCount);
+            damage *= Mathf.Pow(1.25f,comboCount);
         }
         else
         {
@@ -111,17 +119,17 @@ public class IBattle : MonoBehaviour
     }
     protected virtual float CalcResistDamage(IBattle attacker, float damage) 
     {
-        if (attacker.currentType == this.currentType)
-        {
-            //Reduce damage
-            damage *= .75f;
-        }
         float typeMod = 1;
         if (currentType != IType.ElementType.NoType)
         {
             typeMod = statModifiers[(int)currentType, 1];
         }
         float defense = baseStats[1] * typeMod;
+        if (attacker.currentType == this.currentType)
+        {
+            //Reduce damage
+            defense *= 1.25f;
+        }
         for (int i = 0; i < turnEffects.Count; i++) 
         {
             if (turnEffects[i].statType == IType.Stat.Defense) 

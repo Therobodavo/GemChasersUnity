@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class RelaxBuff : Buff
 {
-    public float instantEnergyValue = 50;
-    public float delayedEnergyValue = 20;
+    public float instantEnergyValue = 75;
+    public float delayedEnergyValue = 35;
     public RelaxBuff() : base(4)
     {
-        energyCost = 0;
+        energyCost = 25;
         instantPassiveCombinations = new IType.BuffType[3];
 
         instantPassiveCombinations[0] = IType.BuffType.Heal;

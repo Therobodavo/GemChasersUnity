@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class HealBuff : Buff
 {
-    public float instantHealValue = 50;
-    public float delayedHealValue = 20;
+    public float instantHealValue = 35;
+    public float delayedHealValue = 15;
     public HealBuff() : base(3)
     {
         energyCost = 25;

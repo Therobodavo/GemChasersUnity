@@ -9,12 +9,11 @@ public class ComboBuff : Buff
     {
         energyCost = 25;
 
-        instantAttackCombinations = new IType.BuffType[4];
+        instantAttackCombinations = new IType.BuffType[3];
 
         instantAttackCombinations[0] = IType.BuffType.Strength;
         instantAttackCombinations[1] = IType.BuffType.Speed;
-        instantAttackCombinations[2] = IType.BuffType.Combo;
-        instantAttackCombinations[3] = IType.BuffType.Split;
+        instantAttackCombinations[2] = IType.BuffType.Split;
     }
 
     public override void OnInstantAttack(PlayerAttack attackObj)

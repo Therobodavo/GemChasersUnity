@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class ShieldBuff : Buff
 {
-    public float defenseMultiplier = 0.5f;
+    public float defenseMultiplier = 1.5f;
     public ShieldBuff() : base(2)
     {
+        energyCost = 10;
+
         instantPassiveCombinations = new IType.BuffType[3];
         instantPassiveCombinations[0] = IType.BuffType.Heal;
         instantPassiveCombinations[0] = IType.BuffType.Relax;

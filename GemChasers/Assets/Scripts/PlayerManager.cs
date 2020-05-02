@@ -27,9 +27,6 @@ public class PlayerManager : IBattle
     {
         base.Start();
         toggleCamera(0);
-        baseStats[0] = 20;
-        baseStats[1] = 10;
-        baseStats[2] = 6;
         UIScript = GameObject.Find("Canvas").GetComponent<UI>();
         wheelBuffs = new Buff[12];
         wheelGems = new Gem[6];
@@ -39,14 +36,14 @@ public class PlayerManager : IBattle
         //Default Buffs
         wheelBuffs[0] = new StrengthBuff();
         wheelBuffs[1] = new SpeedBuff();
-        wheelBuffs[2] = new StrengthBuff();
+        wheelBuffs[2] = new ComboBuff();
         wheelBuffs[3] = new SplitBuff();
-        wheelBuffs[4] = new HealBuff();
-        wheelBuffs[5] = new LingerBuff();
+        wheelBuffs[4] = new RelaxBuff();
+        wheelBuffs[5] = new HealBuff();
         wheelBuffs[6] = new StrengthBuff();
         wheelBuffs[7] = new LingerBuff();
-        wheelBuffs[8] = new RelaxBuff();
-        wheelBuffs[9] = new LingerBuff();
+        wheelBuffs[8] = new ComboBuff();
+        wheelBuffs[9] = new SpeedBuff();
         wheelBuffs[10] = new HealBuff();
         wheelBuffs[11] = new SpeedBuff();
 
@@ -58,7 +55,15 @@ public class PlayerManager : IBattle
         wheelGems[5] = new Gem(IType.GemType.Water);
         UIScript.SetUpWheel();
     }
-
+    public override void SetStats()
+    {
+        MAX_HEALTH = 50;
+        MAX_ENERGY = 100;
+        baseStats[0] = 25;
+        baseStats[1] = 10;
+        baseStats[2] = 6;
+        
+    }
     // Update is called once per frame
     protected override void Update()
     {
@@ -69,6 +74,7 @@ public class PlayerManager : IBattle
             float sideMovement = Input.GetAxis("Horizontal");
             float vertMovement = Input.GetAxis("Vertical");
             this.gameObject.transform.position += new Vector3(sideMovement, 0, vertMovement) * Time.deltaTime * speed;
+
         }
     }
     public void CreateAttacks(int buffIndex, int gemIndex) 

@@ -7,7 +7,7 @@ public class StrengthBuff : Buff
     protected float attackPercent = 1.5f;
     public StrengthBuff() : base(0)
     {
-        energyCost = 25;
+        energyCost = 20;
 
         instantAttackCombinations = new IType.BuffType[4];
 

@@ -7,7 +7,7 @@ public class SpeedBuff : Buff
     public float speedPercent = 2.0f;
     public SpeedBuff() : base(1)
     {
-        energyCost = 30;
+        energyCost = 15;
 
         instantAttackCombinations = new IType.BuffType[4];
 

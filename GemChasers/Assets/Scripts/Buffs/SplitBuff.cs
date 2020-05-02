@@ -6,7 +6,7 @@ public class SplitBuff : Buff
 {
     public SplitBuff() : base(5)
     {
-        energyCost = 25;
+        energyCost = 20;
 
         instantAttackCombinations = new IType.BuffType[3];
 
