@@ -22,7 +22,7 @@ public class EnemySpawner : MonoBehaviour
             if (Time.timeSinceLevelLoad - lastSpawnTime > spawnDelay) 
             {
                 lastSpawnTime = Time.timeSinceLevelLoad;
-                int ranNum = Random.Range(0, 2);
+                int ranNum = Random.Range(0, enemyPrefabs.Length);
                 GameObject e = Instantiate(enemyPrefabs[ranNum], path.start.transform.position, path.start.transform.rotation);
                 Enemy eScript = e.GetComponent<Enemy>();
                 eScript.path = this.path;

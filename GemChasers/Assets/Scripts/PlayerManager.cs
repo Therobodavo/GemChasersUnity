@@ -7,7 +7,7 @@ public class PlayerManager : IBattle
 {
     // Start is called before the first frame update
     private float currentRotation = 0;
-    public int speed = 10;
+    public int speed = 100;
     public GameObject battleArea;
     public Camera mainCamera;
     public Camera battleAttackingCamera;
@@ -26,13 +26,15 @@ public class PlayerManager : IBattle
     public override void Start()
     {
         base.Start();
+        currentType = IType.ElementType.NoType;
         toggleCamera(0);
         UIScript = GameObject.Find("Canvas").GetComponent<UI>();
         wheelBuffs = new Buff[12];
         wheelGems = new Gem[6];
         moves = new PlayerAttack[3];
-        currentQuest = new Quest(0, IType.QuestType.TalkQuest);
-        currentQuest.SetTalkTarget(0);
+        currentQuest = new Quest(lm.npcs[0], IType.QuestType.TalkQuest);
+        currentQuest.SetTalkTarget(lm.npcs[0]);
+        currentQuest.completionObject = GameObject.Find("DOOR1");
         //Default Buffs
         wheelBuffs[0] = new StrengthBuff();
         wheelBuffs[1] = new SpeedBuff();
@@ -69,12 +71,22 @@ public class PlayerManager : IBattle
     {
         base.Update();
 
-        if (!inBattle) 
+        if (!inBattle && !talkingToNPC)
         {
             float sideMovement = Input.GetAxis("Horizontal");
             float vertMovement = Input.GetAxis("Vertical");
-            this.gameObject.transform.position += new Vector3(sideMovement, 0, vertMovement) * Time.deltaTime * speed;
-
+            if (sideMovement != 0 || vertMovement != 0) 
+            {
+                Vector3 sideVec = sideMovement * transform.right;
+                Vector3 forwardVec = vertMovement * transform.forward;
+                GetComponent<Rigidbody>().velocity = (sideVec + forwardVec) * speed;
+                //transform.rotation = Quaternion.LookRotation((sideVec + forwardVec).normalized);
+            }
+        }
+        else 
+        {
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
+            GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
         }
     }
     public void CreateAttacks(int buffIndex, int gemIndex) 
@@ -236,5 +248,6 @@ public class PlayerManager : IBattle
         toggleCamera(0);
         transform.parent = null;
         currentType = IType.ElementType.NoType;
+        transform.rotation = Quaternion.identity;
     }
 }

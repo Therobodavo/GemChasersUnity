@@ -11,7 +11,7 @@ public class IBattle : MonoBehaviour
     public float MAX_ENERGY = 100;
     //Attack,Defense,Speed
     public float[] baseStats = {12,1,1};
-    public IType.ElementType currentType = IType.ElementType.NoType;
+    public IType.ElementType currentType;
 
     public int comboCount = 0;
     public BattleArea currentBattleArea;

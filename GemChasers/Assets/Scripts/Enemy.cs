@@ -12,10 +12,10 @@ public class Enemy : IBattle
     public GameObject currentPathTarget;
     public float spawnTime;
     public float despawnTime = 10f;
+    public List<EnemyMove> moves;
     public override void Start()
     {
         base.Start();
-        currentType = IType.ElementType.NoType;
         playerUI = GameObject.Find("Canvas").GetComponent<UI>();
         player = GameObject.Find("Player").GetComponent<PlayerManager>();
         
@@ -53,6 +53,7 @@ public class Enemy : IBattle
         else if (other.tag == "PathBlock") 
         {
             currentPathTarget = GetNextSpot(other.gameObject);
+            transform.rotation = currentPathTarget.transform.rotation;
         }
     }
     private GameObject GetNextSpot(GameObject current) 
@@ -90,7 +91,6 @@ public class Enemy : IBattle
     }
     public override void UseMove()
     {
-        base.UseMove();
         if (currentBattleArea)
         {
             TakeEnergy(30);

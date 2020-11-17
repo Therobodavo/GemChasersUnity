@@ -12,6 +12,7 @@ public static class IType
     public enum Stat {Attack, Defense, Speed, Health, Energy};
     public enum QuestType {KillQuest, CollectQuest,TalkQuest};
     public enum EnemyType { Coconut,Mushroom};
+    public enum PickupType { Energy, Health}
 
 
 }

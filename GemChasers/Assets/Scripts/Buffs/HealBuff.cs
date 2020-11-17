@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Heal Buff Class
+ * Programmed by David Knolls
+ * 
+ * Sets up functionality for heal buff
+ */
+
 public class HealBuff : Buff
 {
     public float instantHealValue = 35;

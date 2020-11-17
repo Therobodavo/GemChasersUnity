@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Combo Buff Class
+ * Programmed by David Knolls
+ * 
+ * Sets up functionality for combo buff
+ */
+
 public class ComboBuff : Buff
 {
 

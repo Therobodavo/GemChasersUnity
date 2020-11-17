@@ -8,14 +8,15 @@ public class Quest
     int[] numToKill = new int[10];
     public List<IType.EnemyType> enemyTargets;
     public int[] numKilled = new int[10];
-    public int questTalkTargetIndex = -1;
-    public int npcGiver = -1;
+    public NPC questTalkTarget = null;
+    public NPC npcGiver = null;
     public bool hasTalkedToNPC = false;
     public bool isLastQuest = false;
-    public Quest(int NPC_ID, IType.QuestType questType) 
+    public GameObject completionObject;
+    public Quest(NPC giver, IType.QuestType questType) 
     {
         this.type = questType;
-        npcGiver = NPC_ID;
+        npcGiver = giver;
         enemyTargets = new List<IType.EnemyType>();
     }
     public void AddEnemyGoal(IType.EnemyType enemyType, int num) 
@@ -26,9 +27,9 @@ public class Quest
             numToKill[(int)enemyType] += num;
         }
     }
-    public void SetTalkTarget(int index) 
+    public void SetTalkTarget(NPC npcTarget) 
     {
-        questTalkTargetIndex = index;
+        questTalkTarget = npcTarget;
     }
     public string GetString() 
     {
@@ -50,7 +51,7 @@ public class Quest
         }
         else if (type == IType.QuestType.TalkQuest) 
         {
-            output += "Talk to NPC " + questTalkTargetIndex;
+            output += "Talk to NPC " + questTalkTarget.npcName;
         }
         return output;
     }

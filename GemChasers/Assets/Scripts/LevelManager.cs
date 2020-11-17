@@ -9,6 +9,7 @@ public class LevelManager : MonoBehaviour
     public Sprite[] elementIcons;
     public Sprite CoconutIconHUD;
     public Sprite MushroomIconHUD;
+    public NPC[] npcs;
     void Start()
     {
         

@@ -14,6 +14,8 @@ public class UI : MonoBehaviour
     public GameObject playerHealthBarText;
     public GameObject playerEnergyBarImage;
     public GameObject playerEnergyBarText;
+    public GameObject PressEnterUI;
+    public GameObject[] playerMoveEnergyCostText;
     public GameObject playerCurrentTypeImage;
     public GameObject moveInfoHUD;
     public GameObject[] moveInfoHUDParts;
@@ -25,7 +27,7 @@ public class UI : MonoBehaviour
     public GameObject[] enemyButtons;
     public GameObject[] enemyUI;
     public GameObject[] enemyTypeIcon;
-
+    public GameObject exlamationPointImage;
     public GameObject[] gems;
     public GameObject[] buffs;
 
@@ -63,24 +65,25 @@ public class UI : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
-        enemyHealthBarImages = GameObject.FindGameObjectsWithTag("EnemyBattleHealthBarFill");
-        enemyHealthBarText = GameObject.FindGameObjectsWithTag("EnemyBattleHealthText");
-        enemyEnergyBarImages = GameObject.FindGameObjectsWithTag("EnemyBattleEnergyBarFill");
-        enemyEnergyBarText = GameObject.FindGameObjectsWithTag("EnemyBattleEnergyText");
-        enemyButtons = GameObject.FindGameObjectsWithTag("EnemyBattleButton");
-        enemyUI = GameObject.FindGameObjectsWithTag("EnemyBattleHUD");
+
         playerInputUI = GameObject.FindGameObjectWithTag("PlayerBattleInputUI");
-        enemyTypeIcon = GameObject.FindGameObjectsWithTag("EnemyBattleElementTypeIcon");
+
         questHUD = GameObject.Find("QuestDisplay");
         pressEText = GameObject.Find("PressE");
         npcs = GameObject.FindGameObjectsWithTag("NPC");
+        exlamationPointImage = GameObject.Find("Exclamation");
+        PressEnterUI = GameObject.Find("PressEnter");
+
     }
     void Start()
     {
         battleUI.SetActive(false);
+        PressEnterUI.SetActive(false);
         dialogueObject.SetActive(false);
         questHUD.SetActive(false);
+        moveInfoHUD.SetActive(false);
         pressEText.SetActive(false);
+        exlamationPointImage.SetActive(false);
         halfWheel = outerWheel.GetComponent<Image>().rectTransform.rect.width * outerWheel.GetComponent<Image>().rectTransform.localScale.x;
         switchButton("Spin", true, Spin);
     }
@@ -93,6 +96,7 @@ public class UI : MonoBehaviour
         for (int i = 0; i < gems.Length; i++)
         {
             gems[i].transform.GetChild(0).GetComponent<Image>().sprite = player.GetComponent<PlayerManager>().wheelGems[i].gemImage;
+            
         }
     }
     // Update is called once per frame
@@ -203,8 +207,8 @@ public class UI : MonoBehaviour
         isSpinning = true;
         startSpinTime = Time.timeSinceLevelLoad;
 
-        outerIndex = Random.Range(0, 5);
-        innerIndex = Random.Range(0, 5);
+        outerIndex = Random.Range(0, 6);
+        innerIndex = Random.Range(0, 6);
         player.GetComponent<PlayerManager>().CreateAttacks(outerIndex, innerIndex);
 
 
@@ -277,7 +281,27 @@ public class UI : MonoBehaviour
                 pressEText.SetActive(true);
             }
         }
-        
+
+        //Set Exclamation Point for npc
+        Quest quest = player.GetComponent<PlayerManager>().currentQuest;
+        if (quest != null) 
+        {
+
+            if (quest.type == IType.QuestType.TalkQuest && !quest.IsComplete())
+            {
+                exlamationPointImage.SetActive(true);
+                exlamationPointImage.transform.position = quest.questTalkTarget.transform.position + new Vector3(0, 2, 0);
+            }
+            else if (quest.type == IType.QuestType.KillQuest && quest.IsComplete())
+            {
+                exlamationPointImage.SetActive(true);
+                exlamationPointImage.transform.position = quest.npcGiver.transform.position + new Vector3(0, 2, 0);
+            }
+            else 
+            {
+                exlamationPointImage.SetActive(false);
+            }
+        }
     }
     private void UpdateEnemyUI() 
     {
@@ -292,6 +316,7 @@ public class UI : MonoBehaviour
                     bool[] areEnemiesAlive = playerScript.currentBattleArea.GetEnemiesAlive();
                     for (int i = 0; i < 3; i++) 
                     {
+                        UpdateEnemyBar(areEnemiesAlive, enemyUI[i], i);
                         UpdateEnemyBar(areEnemiesAlive, enemyUI[i], i);
                     }
                 }
@@ -310,8 +335,8 @@ public class UI : MonoBehaviour
                 {
                     enemyHealthBarImages[index].GetComponent<Image>().fillAmount = enemyScript.GetHealth() / enemyScript.MAX_HEALTH;
                     enemyEnergyBarImages[index].GetComponent<Image>().fillAmount = enemyScript.GetEnergy() / enemyScript.MAX_ENERGY;
-                    enemyHealthBarText[index].GetComponent<Text>().text = ((int)enemyScript.GetHealth()).ToString();
-                    enemyEnergyBarText[index].GetComponent<Text>().text = ((int)enemyScript.GetEnergy()).ToString();
+                    enemyHealthBarText[index].GetComponent<Text>().text = Mathf.Ceil(enemyScript.GetHealth()).ToString();
+                    enemyEnergyBarText[index].GetComponent<Text>().text = Mathf.Ceil(enemyScript.GetEnergy()).ToString();
                 }
             }
             else
@@ -398,6 +423,7 @@ public class UI : MonoBehaviour
     {
         selected.SetActive(false);
         hover.SetActive(false);
+        moveInfoHUD.SetActive(false);
         isLocked = false;
         isSpinning = false;
         isSelected = false;
