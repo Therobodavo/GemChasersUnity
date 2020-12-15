@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * PlayerAttack Class
+ * Programmed by David Knolls
+ * 
+ * Creates attack based off 2 buffs and a gem
+ */
 public class PlayerAttack
 {
     public Buff[] buffs;
@@ -14,7 +20,7 @@ public class PlayerAttack
     //If all enemies or allies should be targeted
     public bool targetAllSide = false;
     public bool isComboAttack = false;
-    //Attack, Defense, Speed
+ 
     //Multiply Attack
     //Multiply Defense
     //Add Speed
@@ -35,6 +41,7 @@ public class PlayerAttack
 
         if (buff1 != null && buff2 != null) 
         {
+            //Calculatee energy cost
             int sum = buff1.GetEnergyCost() + buff2.GetEnergyCost();
             if (sum > 100)
             {
@@ -59,6 +66,7 @@ public class PlayerAttack
     {
         return energyCost;
     }
+    //Checks if the move targets itself (like heal/relax)
     public bool isTargetingSelf()
     {
         bool result = true;
@@ -74,12 +82,17 @@ public class PlayerAttack
         }
         return result;
     }
+
+    //Main function to trigger effects of move
     public void Use() 
     {
+        //If move is valid
         if (buffs[0] != null && buffs[1] != null && gemType != null && foundMatch) 
         {
             playerScript.currentType = (IType.ElementType)gemType.gemTypeID;
             playerScript.TakeEnergy(energyCost);
+
+            //Use attack based on type
             if (currentType == IType.MoveType.InstantAttack) 
             {
                 buffs[0].OnInstantAttack(this);
@@ -139,6 +152,8 @@ public class PlayerAttack
             }
         }
     }
+
+    //Check if the second buff is compatiable with the first buff and set the type
     private bool CheckBuffCombination(IType.BuffType[] list, IType.MoveType outcome) 
     {
         bool canFind = false;

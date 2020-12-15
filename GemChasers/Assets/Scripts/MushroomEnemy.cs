@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Mushroom Enemy Class
+ * Programmed by David Knolls
+ * 
+ * Specialized Enemy with unique moves
+ */
+
 public class MushroomEnemy : Enemy
 {
     public override void Start()
@@ -12,11 +19,14 @@ public class MushroomEnemy : Enemy
     }
     public override void SetStats()
     {
+        //Custom stats
         MAX_HEALTH = 12;
         MAX_ENERGY = 100;
         baseStats[0] = 13;
         baseStats[1] = 8;
         baseStats[2] = 4;
+
+        //Custom moves
         moves = new List<EnemyMove>();
         EnemyMove move = new EnemyMove(this, IType.MoveType.InstantAttack, 30, currentType);
         move.damageScale = 1.2f;
@@ -32,6 +42,8 @@ public class MushroomEnemy : Enemy
         move = new EnemyMove(this, IType.MoveType.DelayedPassive, 25, currentType);
         moves.Add(move);
     }
+
+    //Randomized move function
     public override void UseMove()
     {
         if (currentBattleArea && isAlive())

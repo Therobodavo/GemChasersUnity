@@ -2,22 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * IBattle Class
+ * Programmed by David Knolls
+ * 
+ * Base class for any creature who can join battles
+ */
+
 public class IBattle : MonoBehaviour
 {
     public bool inBattle = false;
+
     protected float health;
     protected float energy;
+
     public float MAX_HEALTH = 100;
     public float MAX_ENERGY = 100;
+
     //Attack,Defense,Speed
     public float[] baseStats = {12,1,1};
+
     public IType.ElementType currentType;
 
+    //Count for combo moves multiplier
     public int comboCount = 0;
+
     public BattleArea currentBattleArea;
     public bool isPassing = false;
     public List<BattleEffect> turnEffects;
     public List<BattleEffect> turnDamage;
+
+    //Base stats for each element type
     public float[,] statModifiers =
 {
         {1.3f,0.8f,1},  //Heat
@@ -47,11 +62,15 @@ public class IBattle : MonoBehaviour
             OnDeath();
         }
     }
+
+    //Called on start, sets stats or any other variables for creature
     public virtual void SetStats() 
     {
         MAX_HEALTH = 100;
         MAX_ENERGY = 100;
     }
+
+    //Event triggered when killed
     public virtual void OnDeath() 
     {
         currentBattleArea.RemoveEnemy(gameObject);
@@ -60,6 +79,8 @@ public class IBattle : MonoBehaviour
     {
         return health;
     }
+
+    //Give creature health based on parameter
     public void Heal(float incomingHealth) 
     {
         if (incomingHealth > 0) 
@@ -74,6 +95,8 @@ public class IBattle : MonoBehaviour
             }
         }
     }
+
+    //Give creature energy based on parameter
     public void Relax(float incomingEnergy) 
     {
         if (incomingEnergy > 0)
@@ -92,6 +115,8 @@ public class IBattle : MonoBehaviour
     {
         return energy;
     }
+
+    //Trigger damage for this creature. Uses custom damage calculations
     public virtual void TakeDamage(IBattle attacker,float damage, bool isCombo)
     {
         if (isCombo)
@@ -104,7 +129,6 @@ public class IBattle : MonoBehaviour
             comboCount = 0;
         }
         damage = CalcResistDamage(attacker, damage);
-        Debug.Log("Damage: " + damage);
         if (damage > 0)
         {
             if (health - damage < 0)
@@ -117,6 +141,8 @@ public class IBattle : MonoBehaviour
             }
         }
     }
+
+    //Helper function to calculate defense resistance for damage calculation
     protected virtual float CalcResistDamage(IBattle attacker, float damage) 
     {
         float typeMod = 1;
@@ -145,6 +171,8 @@ public class IBattle : MonoBehaviour
 
         return damage;
     }
+
+    //Use energy based on parameter
     public virtual void TakeEnergy(float usage)
     {
         if (usage > 0)
@@ -159,6 +187,8 @@ public class IBattle : MonoBehaviour
             }
         }
     }
+
+    //Checks if player has health above 0
     public virtual bool isAlive()
     {
         bool result = false;
@@ -169,6 +199,7 @@ public class IBattle : MonoBehaviour
 
         return result;
     }
+    //BASE MOVE for using moves. Not set up properly for using moves, must override
     public virtual void UseMove()
     {
         if (!isAlive()) 
@@ -176,6 +207,7 @@ public class IBattle : MonoBehaviour
             return;
         }
     }
+    //Check if creature can afford a move
     public virtual bool hasEnoughEnergy(float moveCost)
     {
         bool result = false;
@@ -190,6 +222,8 @@ public class IBattle : MonoBehaviour
     {
         return baseStats[2];
     }
+
+    //Event for when the battle starts
     public virtual void OnBattleStart(int index) 
     {
         turnEffects = new List<BattleEffect>();

@@ -3,8 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/*
+ * UI Class
+ * Programmed by David Knolls
+ * 
+ * All functions for combat with UI and updating data on screen
+ */
+
 public class UI : MonoBehaviour
 {
+    //Keep track of everything on screen
     public GameObject outerWheel;
     public GameObject innerWheel;
     public GameObject wheel;
@@ -60,9 +68,11 @@ public class UI : MonoBehaviour
     private int innerIndex = -1;
     public int selectedEnemyTarget = -1;
 
+    //Angles allowed for wheel to end up rotated on
     private int[] possibleAngles = {0,-60,-120,-180,-240,-300};
+
     private int currentMoveIndex = -1;
-    // Start is called before the first frame update
+
     private void Awake()
     {
 
@@ -87,6 +97,8 @@ public class UI : MonoBehaviour
         halfWheel = outerWheel.GetComponent<Image>().rectTransform.rect.width * outerWheel.GetComponent<Image>().rectTransform.localScale.x;
         switchButton("Spin", true, Spin);
     }
+
+    //Set wheel images to current buffs and gems
     public void SetUpWheel() 
     {
         for (int i = 0; i < buffs.Length; i++) 
@@ -99,7 +111,7 @@ public class UI : MonoBehaviour
             
         }
     }
-    // Update is called once per frame
+
     void Update()
     {
         Vector3 angleVector = (Input.mousePosition - outerWheel.transform.position);
@@ -127,7 +139,7 @@ public class UI : MonoBehaviour
                         indexToUse = player.GetComponent<PlayerManager>().selectedMoveIndex;
                     }
                 }
-                //Debug.Log("MOVE BUFF 2: " + ((IType.BuffType)player.GetComponent<PlayerManager>().moves[indexToUse].buffs[1].GetBuffID()).ToString());
+
                 //SET HUD
                 moveInfoHUDParts[1].GetComponent<Text>().text = ((IType.BuffType)player.GetComponent<PlayerManager>().moves[indexToUse].buffs[0].GetBuffID()).ToString();
                 moveInfoHUDParts[2].GetComponent<Text>().text = ((IType.BuffType)player.GetComponent<PlayerManager>().moves[indexToUse].buffs[1].GetBuffID()).ToString();
@@ -223,6 +235,7 @@ public class UI : MonoBehaviour
         togglePlayerTurnInput(false);
         player.GetComponent<PlayerManager>().currentBattleArea.currentBattleState = BattleArea.GameState.PlayerMoveSelected;
     }
+    //Button function to pass turn
     public void Pass() 
     {
         player.GetComponent<PlayerManager>().isPassing = true;
@@ -230,6 +243,8 @@ public class UI : MonoBehaviour
         togglePlayerTurnInput(false);
         player.GetComponent<PlayerManager>().currentBattleArea.currentBattleState = BattleArea.GameState.PlayerMoveSelected;
     }
+
+    //Visual update of UI elements
     private void UpdatePlayerBars() 
     {
         playerHealthBarImage.GetComponent<Image>().fillAmount = player.GetComponent<PlayerManager>().GetHealth() / player.GetComponent<PlayerManager>().MAX_HEALTH;
@@ -303,6 +318,8 @@ public class UI : MonoBehaviour
             }
         }
     }
+
+    //Update enemy UI in battle
     private void UpdateEnemyUI() 
     {
         PlayerManager playerScript;
@@ -323,6 +340,7 @@ public class UI : MonoBehaviour
             }
         }
     }
+    //Update enemy UI in battle (updates health/energy)
     private void UpdateEnemyBar(bool[] alive,GameObject UI, int index) 
     {
         if (alive[index])
@@ -371,6 +389,8 @@ public class UI : MonoBehaviour
             currentMoveIndex = 2;
         }
     }
+
+    //Trigger when a move is selected
     private void OnSelected() 
     {
         if (player.GetComponent<PlayerManager>().moves[currentMoveIndex].GetEnergyCost() <= player.GetComponent<PlayerManager>().GetEnergy())
@@ -401,6 +421,8 @@ public class UI : MonoBehaviour
             }
         }
     }
+
+    //Utility to switch buttons that as visible for player
     private void switchButton(string text, bool state, UnityEngine.Events.UnityAction funt = null) 
     {
         if (state)
@@ -419,6 +441,8 @@ public class UI : MonoBehaviour
             spinBtn.GetComponent<Button>().onClick.AddListener(funt);
         }
     }
+
+    //Reset EVERYTHING for the players UI for combat
     public void ResetTurn() 
     {
         selected.SetActive(false);

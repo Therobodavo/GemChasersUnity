@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * NPC3 Class
+ * Programmed by David Knolls
+ * 
+ * New NPC
+ */
+
 public class NPC3 : NPC
 {
     public override void SetName()

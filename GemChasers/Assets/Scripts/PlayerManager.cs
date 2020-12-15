@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/*
+ * Player Manager Class
+ * Programmed by David Knolls
+ * 
+ * Main Player Class
+ * In world actions and data handling
+ */
+
 public class PlayerManager : IBattle
 {
-    // Start is called before the first frame update
     private float currentRotation = 0;
     public int speed = 100;
     public GameObject battleArea;
@@ -26,15 +33,20 @@ public class PlayerManager : IBattle
     public override void Start()
     {
         base.Start();
+
+        //Initialize everything
         currentType = IType.ElementType.NoType;
         toggleCamera(0);
         UIScript = GameObject.Find("Canvas").GetComponent<UI>();
         wheelBuffs = new Buff[12];
         wheelGems = new Gem[6];
         moves = new PlayerAttack[3];
+
+        //Starting quest
         currentQuest = new Quest(lm.npcs[0], IType.QuestType.TalkQuest);
         currentQuest.SetTalkTarget(lm.npcs[0]);
         currentQuest.completionObject = GameObject.Find("DOOR1");
+
         //Default Buffs
         wheelBuffs[0] = new StrengthBuff();
         wheelBuffs[1] = new SpeedBuff();
@@ -49,12 +61,14 @@ public class PlayerManager : IBattle
         wheelBuffs[10] = new HealBuff();
         wheelBuffs[11] = new SpeedBuff();
 
+        //Default Gems
         wheelGems[0] = new Gem(IType.GemType.Breeze);
         wheelGems[1] = new Gem(IType.GemType.Forest);
         wheelGems[2] = new Gem(IType.GemType.Heat);
         wheelGems[3] = new Gem(IType.GemType.Music);
         wheelGems[4] = new Gem(IType.GemType.Space);
         wheelGems[5] = new Gem(IType.GemType.Water);
+
         UIScript.SetUpWheel();
     }
     public override void SetStats()
@@ -66,13 +80,15 @@ public class PlayerManager : IBattle
         baseStats[2] = 6;
         
     }
-    // Update is called once per frame
     protected override void Update()
     {
         base.Update();
 
+        //If wandering
         if (!inBattle && !talkingToNPC)
         {
+
+            //Movement
             float sideMovement = Input.GetAxis("Horizontal");
             float vertMovement = Input.GetAxis("Vertical");
             if (sideMovement != 0 || vertMovement != 0) 
@@ -80,7 +96,6 @@ public class PlayerManager : IBattle
                 Vector3 sideVec = sideMovement * transform.right;
                 Vector3 forwardVec = vertMovement * transform.forward;
                 GetComponent<Rigidbody>().velocity = (sideVec + forwardVec) * speed;
-                //transform.rotation = Quaternion.LookRotation((sideVec + forwardVec).normalized);
             }
         }
         else 
@@ -89,6 +104,8 @@ public class PlayerManager : IBattle
             GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
         }
     }
+
+    //Create attacks based off gems and buffs
     public void CreateAttacks(int buffIndex, int gemIndex) 
     {
         for (int i = 0; i < 3; i++) 
@@ -108,6 +125,7 @@ public class PlayerManager : IBattle
         }
     }
 
+    //Switch between cameras
     // 0 - Main
     // 1 - Battle Select
     // 2 - Battle Attack
@@ -132,6 +150,9 @@ public class PlayerManager : IBattle
             mainCamera.enabled = false;
         }
     }
+
+    //Switch between models for different visual states
+    //Solution for no animations
     public void toggleModel(int model) 
     {
         if (model == 0)
@@ -165,10 +186,14 @@ public class PlayerManager : IBattle
             inBattle = true;
         }
     }
+
+    //Spawn in battle area when initiating battle
     private void CreateBattleArea(GameObject hitEnemy) 
     {
         GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("BattleSpawnPoint");
         GameObject closest = null;
+
+        //Find nearest spawnpoint
         if (spawnPoints.Length > 0) 
         {
             for (int i = 0; i < spawnPoints.Length; i++) 
@@ -186,6 +211,7 @@ public class PlayerManager : IBattle
                 }
             }
         }
+
         GameObject battle;
         if (closest != null)
         {
@@ -197,7 +223,7 @@ public class PlayerManager : IBattle
         }
         
         currentBattleArea = battle.GetComponent<BattleArea>();
-        currentBattleArea.SetSpawnPoint();
+
         if (hitEnemy) 
         {
             if (!hitEnemy.GetComponent<IBattle>().inBattle) 

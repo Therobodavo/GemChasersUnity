@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+/*
+ * BattleEffect Class
+ * Programmed by David Knolls
+ * 
+ * Base Effect that can impact creature in battle
+ */
+
 public class BattleEffect
 {
     public IType.Stat statType;

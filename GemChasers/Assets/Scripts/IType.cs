@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * IType Class
+ * Programmed by David Knolls
+ * 
+ * Enum storage class
+ */
+
 public static class IType
 {
     public enum ElementType { Heat, Breeze, Forest, Music, Space, Water, NoType };

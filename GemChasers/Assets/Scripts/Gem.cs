@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Gem Class
+ * Programmed by David Knolls
+ * 
+ * Determines type of moves
+ */
+
 public class Gem
 {
     public int gemTypeID = 0;

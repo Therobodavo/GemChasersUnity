@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/*
+ * Enemy Class
+ * Programmed by David Knolls
+ * 
+ * Basic functions for every enemy inheriting from IBattle
+ */
+
 public class Enemy : IBattle
 {
     public UI playerUI;
@@ -25,6 +32,8 @@ public class Enemy : IBattle
     protected override void Update()
     {
         base.Update();
+
+        //Follow path and despawn after X amount of time IF spawned from a spawner (path != null)
         if (path != null && currentPathTarget != null && !inBattle) 
         {
             transform.position += (currentPathTarget.transform.position - transform.position).normalized * 5 * Time.deltaTime;
@@ -34,8 +43,11 @@ public class Enemy : IBattle
             }
         }
     }
+
+    //When enemy hits another trigger
     private void OnTriggerEnter(Collider other)
     {
+        //If trigger is for BattleArea, attempt to join battle
         if (other.tag == "BattleArea" && !inBattle)
         {
             BattleArea area = other.GetComponent<BattleArea>();
@@ -50,12 +62,14 @@ public class Enemy : IBattle
                 Destroy(this.gameObject);
             }
         }
+        //If trigger is part of path, keep following path
         else if (other.tag == "PathBlock") 
         {
             currentPathTarget = GetNextSpot(other.gameObject);
             transform.rotation = currentPathTarget.transform.rotation;
         }
     }
+    //Find next spot in path to follow
     private GameObject GetNextSpot(GameObject current) 
     {
         GameObject result = current;
@@ -76,8 +90,10 @@ public class Enemy : IBattle
         }
         return result;
     }
+    //If inside of trigger
     private void OnTriggerStay(Collider other)
     {
+        //Attempt ot join battle if trigger is BattleArea
         if (other.tag == "BattleArea" && !inBattle)
         {
             BattleArea area = other.GetComponent<BattleArea>();
@@ -87,8 +103,13 @@ public class Enemy : IBattle
                 currentBattleArea.AddCreature(gameObject, true);
                 inBattle = true;
             }
+            else
+            {
+                Destroy(this.gameObject);
+            }
         }
     }
+    //Event to use an attack
     public override void UseMove()
     {
         if (currentBattleArea)
@@ -103,6 +124,7 @@ public class Enemy : IBattle
             currentBattleArea.player.GetComponent<PlayerManager>().TakeDamage(this,(baseStats[0] * typeMod), false);
         }
     }
+    //Event triggered for enemy when the battle starts
     public override void OnBattleStart(int index)
     {
         base.OnBattleStart(index);
@@ -115,9 +137,12 @@ public class Enemy : IBattle
             }
         }
     }
+    //Event triggered for enemy when dead
     public override void OnDeath()
     {
         base.OnDeath();
+
+        //Update quests
         if (player.currentQuest != null) 
         {
             for (int i = 0; i < player.currentQuest.enemyTargets.Count;i++) 

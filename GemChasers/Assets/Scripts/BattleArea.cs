@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * BattleArea Class
+ * Programmed by David Knolls
+ * 
+ * Main code for a battle area (combat)
+ */
+
 public class BattleArea : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -21,17 +28,19 @@ public class BattleArea : MonoBehaviour
     private float attackStartTime = 0;
     private bool attackStart = false;
     private int turnIndex = 0;
+    private PlayerManager manager;
     void Start()
     {
         whiteMat = Resources.Load("Materials/White", typeof(Material)) as Material;
         yellowMat = Resources.Load("Materials/Yellow", typeof(Material)) as Material;
-
         turnOrder = new List<IBattle>();
         player = GameObject.Find("Player");
-        battleUI = player.GetComponent<PlayerManager>().battleUI;
+        manager = player.GetComponent<PlayerManager>();
+        battleUI = manager.battleUI;
         mainUI = GameObject.Find("Canvas").GetComponent<UI>();
-        player.GetComponent<PlayerManager>().toggleCamera(1);
-        player.GetComponent<PlayerManager>().toggleModel(1);
+        manager.toggleCamera(1);
+        manager.toggleModel(1);
+
         //Enable Battle UI
         if (!battleUI.activeSelf) 
         {
@@ -56,25 +65,26 @@ public class BattleArea : MonoBehaviour
             LowerEffects(player.GetComponent<IBattle>());
 
             //Add Energy to Everyone Alive
-            player.GetComponent<PlayerManager>().Relax(20);
-            player.GetComponent<PlayerManager>().isPassing = false;
+            manager.Relax(20);
+            manager.isPassing = false;
 
 
             for (int i = 0; i < enemies.Length; i++) 
             {
                 if (enemies[i]) 
                 {
+                    IBattle enemyComp = enemies[i].GetComponent<IBattle>();
                     if (enemies[i].GetComponent<IBattle>().isAlive()) 
                     {
-                        LowerEffects(enemies[i].GetComponent<IBattle>());
-                        enemies[i].GetComponent<IBattle>().Relax(20);
-                        enemies[i].GetComponent<IBattle>().isPassing = false;
+                        LowerEffects(enemyComp);
+                        enemyComp.Relax(20);
+                        enemyComp.isPassing = false;
                     }
                 }
             }
             mainUI.ResetTurn();
             currentBattleState = GameState.PlayerMoveSelection;
-            player.GetComponent<PlayerManager>().toggleCamera(1);
+            manager.toggleCamera(1);
             ResetPlatforms();
         }
         else if (currentBattleState == GameState.PlayerMoveSelected)
@@ -88,8 +98,9 @@ public class BattleArea : MonoBehaviour
             {
                 if (e) 
                 {
+                    IBattle eComp = e.GetComponent<IBattle>();
                     //Get e speed
-                    float enemySpeed = CalcTurnSpeed(e.GetComponent<IBattle>().turnEffects, e.GetComponent<IBattle>().GetSpeed());
+                    float enemySpeed = CalcTurnSpeed(eComp.turnEffects, eComp.GetSpeed());
                     
 
                     bool added = false;
@@ -100,14 +111,14 @@ public class BattleArea : MonoBehaviour
 
                         if (enemySpeed <= otherSpeed)
                         {
-                            turnOrder.Insert(i + 1,e.GetComponent<IBattle>());
+                            turnOrder.Insert(i + 1, eComp);
                             added = true;
                             break;
                         }
                     }
                     if (!added) 
                     {
-                        turnOrder.Insert(0,e.GetComponent<IBattle>());
+                        turnOrder.Insert(0, eComp);
                     }
                 }
             }
@@ -116,8 +127,8 @@ public class BattleArea : MonoBehaviour
         }
         else if (currentBattleState == GameState.AttackPhase) 
         {
-            
-            player.GetComponent<PlayerManager>().toggleCamera(2);
+
+            manager.toggleCamera(2);
             if (!turnOrder[turnIndex] || !turnOrder[turnIndex].isAlive())
             {
                 turnOrder.RemoveAt(turnIndex);
@@ -169,6 +180,8 @@ public class BattleArea : MonoBehaviour
             }
         }
     }
+
+    //Trigger Debuffs/DoT for given creature
     private void LowerEffects(IBattle obj) 
     {
         for (int j = obj.turnEffects.Count - 1; j >= 0; j--)
@@ -196,6 +209,8 @@ public class BattleArea : MonoBehaviour
             }
         }
     }
+
+    //Trigger Passive effects for all creatures
     private void TriggerPassives() 
     {
         for (int i = 0; i < turnOrder[turnIndex].turnEffects.Count; i++) 
@@ -210,15 +225,18 @@ public class BattleArea : MonoBehaviour
             }
         }
     }
+
+    //Trigger Damage Over Time effects for all creatures
     private void TriggerTurnDamage() 
     {
         for (int i = 0; i < turnOrder[turnIndex].turnDamage.Count; i++) 
         {
-            Debug.Log("TURN HIT BOI");
             BattleEffect currentEffect = turnOrder[turnIndex].turnDamage[i];
             turnOrder[turnIndex].TakeDamage(currentEffect.attacker, currentEffect.value, false);
         }
     }
+
+    //Calculate the turn speed for a creature based on effects
     private float CalcTurnSpeed(List<BattleEffect> effects, float currentSpeed) 
     {
         for (int i = 0; i < effects.Count; i++)
@@ -230,18 +248,24 @@ public class BattleArea : MonoBehaviour
         }
         return currentSpeed;
     }
+
+    //Event for when battle is over
     private void OnBattleEnd() 
     {
         currentBattleState = GameState.BattleEnd;
         mainUI.ResetTurn();
         battleUI.SetActive(false);
-        player.GetComponent<PlayerManager>().OnBattleEnd();
+        manager.OnBattleEnd();
         Destroy(gameObject);
     }
+
+    //Get all spots in battle area
     public GameObject[] GetSpots() 
     {
         return spots;
     }
+
+    //Check if enemy spot is valid and set onto enemy data structure
     private void SetEnemy(GameObject e, int index) 
     {
         if (index >= 0 && index <= 2) 
@@ -253,6 +277,8 @@ public class BattleArea : MonoBehaviour
             }
         }
     }
+
+    //Set object to spot in battle
     private void SetObject(GameObject obj, int index) 
     {
         if (index >= 0 && index <= 5) 
@@ -262,13 +288,12 @@ public class BattleArea : MonoBehaviour
             obj.transform.parent = spots[index].transform;
         }
     }
-    public void SetSpawnPoint() 
-    {
 
-    }
+    //Add Creature passed in to battle
     public bool AddCreature(GameObject obj, bool isEnemy) 
     {
         bool canAdd = false;
+        IBattle objComp = obj.GetComponent<IBattle>();
         if (isEnemy)
         {
             for (int i = 0; i < 3; i++) 
@@ -278,9 +303,9 @@ public class BattleArea : MonoBehaviour
                     
                     enemiesAdded++;
                     canAdd = true;
-                    obj.GetComponent<IBattle>().OnBattleStart(i);
-                    obj.GetComponent<IBattle>().inBattle = true;
-                    obj.GetComponent<IBattle>().currentBattleArea = this;
+                    objComp.OnBattleStart(i);
+                    objComp.inBattle = true;
+                    objComp.currentBattleArea = this;
                     SetEnemy(obj, i);
                     break;
                 }
@@ -292,6 +317,8 @@ public class BattleArea : MonoBehaviour
         }
         return canAdd;
     }
+
+    //Get bool array for enemy spots that are alive
     public bool[] GetEnemiesAlive() 
     {
         bool[] enemiesAlive = { false, false, false };
@@ -308,10 +335,14 @@ public class BattleArea : MonoBehaviour
         }
         return enemiesAlive;
     }
+
+    //Get all enemy GameObjects in battle
     public GameObject[] GetEnemies() 
     {
         return enemies;
     }
+    
+    //Get IBattle scripts of each enemy
     public IBattle[] GetEnemyScripts() 
     {
         IBattle[] enemyScripts = new IBattle[3];
@@ -324,6 +355,8 @@ public class BattleArea : MonoBehaviour
         }
         return enemyScripts;
     }
+
+    //Remove enemy from specific spot of battle area
     public void RemoveEnemy(GameObject e) 
     {
         for (int i = 0; i < 3; i++) 
@@ -339,6 +372,8 @@ public class BattleArea : MonoBehaviour
             }
         }
     }
+
+    //Check if enemy spot is free and a new one can join
     public bool AreOpenSpots() 
     {
         bool result = false;
@@ -355,10 +390,14 @@ public class BattleArea : MonoBehaviour
         }
         return result;
     }
+    
+    //Set current attacking spot to yellow
     private void SetCurrentAttacking() 
     {
         turnOrder[turnIndex].transform.parent.GetChild(0).GetComponent<MeshRenderer>().material = yellowMat;
     }
+
+    //Set all spots to white in battle
     private void ResetPlatforms() 
     {
         for (int i = 0; i < spots.Length; i++) 

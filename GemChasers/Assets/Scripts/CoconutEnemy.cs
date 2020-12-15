@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Coconut Enemy Class
+ * Programmed by David Knolls
+ * 
+ * Custom stats/move choices for Coconut Enemy, inherited from Enemy
+ */
+
 public class CoconutEnemy : Enemy
 {
 
@@ -12,6 +19,8 @@ public class CoconutEnemy : Enemy
         IconHUD = lm.CoconutIconHUD;
         speciesType = IType.EnemyType.Coconut;
     }
+
+    //Set custom stats for coconut enemy
     public override void SetStats()
     {
         MAX_HEALTH = 10;
@@ -19,6 +28,8 @@ public class CoconutEnemy : Enemy
         baseStats[0] = 15;
         baseStats[1] = 6;
         baseStats[2] = 7;
+
+        //Create different enemy moves
         moves = new List<EnemyMove>();
         EnemyMove move = new EnemyMove(this,IType.MoveType.InstantAttack,30,currentType);
         move.damageScale = 1.3f;
@@ -34,12 +45,13 @@ public class CoconutEnemy : Enemy
         move = new EnemyMove(this, IType.MoveType.DelayedPassive, 25, currentType);
         moves.Add(move);
     }
+
+    //Event to pick which move to use
     public override void UseMove()
     {
         if (currentBattleArea && isAlive()) 
         {
             int pickMove = Random.Range(0,moves.Count);
-            Debug.Log(pickMove);
             if (moves[pickMove].energyCost <= energy) 
             {
                 moves[pickMove].Use();

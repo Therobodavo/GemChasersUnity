@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Path Class
+ * Programmed by David Knolls
+ * 
+ * Keeps track of all parts of a path for enemies to follow
+ */
+
 public class Path : MonoBehaviour
 {
     public GameObject[] spots;

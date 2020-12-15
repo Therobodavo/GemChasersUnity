@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Quest Class
+ * Programmed by David Knolls
+ * 
+ * Data tracking and main functions for quests
+ */
+
 public class Quest
 {
     public IType.QuestType type;
@@ -19,6 +26,8 @@ public class Quest
         npcGiver = giver;
         enemyTargets = new List<IType.EnemyType>();
     }
+
+    //Add kill goal for enemy type
     public void AddEnemyGoal(IType.EnemyType enemyType, int num) 
     {      
         if (num > 0) 
@@ -27,10 +36,14 @@ public class Quest
             numToKill[(int)enemyType] += num;
         }
     }
+
+    //Set NPC that needs talking to
     public void SetTalkTarget(NPC npcTarget) 
     {
         questTalkTarget = npcTarget;
     }
+
+    //Convert to string for UI display
     public string GetString() 
     {
         string output = "";
@@ -55,6 +68,8 @@ public class Quest
         }
         return output;
     }
+
+    //Checks if quest has been finished
     public bool IsComplete() 
     {
         bool isDone = true;

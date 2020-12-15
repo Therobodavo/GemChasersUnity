@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * PickupSpawner Class
+ * Programmed by David Knolls
+ * 
+ * Spawns pickup drops into the world for the player
+ */
+
 public class PickUpSpawner : MonoBehaviour
 {
     public GameObject healthPickup;
@@ -24,6 +31,7 @@ public class PickUpSpawner : MonoBehaviour
 
     void Update()
     {
+        //Timer for spawning
         if (Time.timeSinceLevelLoad - lastSpawned > spawnDelay) 
         {
             lastSpawned = Time.timeSinceLevelLoad;
@@ -50,6 +58,7 @@ public class PickUpSpawner : MonoBehaviour
             }
         }
     }
+    //Spawn Health Pickup (if below max allowed)
     bool AttemptSpawnHealth(float x, float z)  
     {
         bool spawned = false;
@@ -63,6 +72,7 @@ public class PickUpSpawner : MonoBehaviour
         }
         return spawned;
     }
+    //Spawn Energy Pickup (if below max allowed)
     bool AttemptSpawnEnergy(float x, float z) 
     {
         bool spawned = false;

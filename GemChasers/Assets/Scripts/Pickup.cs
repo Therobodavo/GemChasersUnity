@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Pickup Class
+ * Programmed by David Knolls
+ * 
+ * Base Pickup class for objecst that the player can pick up in the world
+ * Set up for health and energy pickups
+ */
+
 public class Pickup : MonoBehaviour
 {
     public IType.PickupType healType;
@@ -16,6 +24,7 @@ public class Pickup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Rotate effect
         transform.Rotate(Vector3.up * rotateAmount * Time.deltaTime);
     }
     private void OnTriggerEnter(Collider other)
@@ -59,6 +68,8 @@ public class Pickup : MonoBehaviour
             }
         }
     }
+
+    //Remove pickup from spawner so it can spawn a new pickup
     public void RemoveFromSpawner(List<GameObject> list) 
     {
         if (spawner)

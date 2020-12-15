@@ -4,6 +4,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/*
+ * NPC Class
+ * Programmed by David Knolls
+ * 
+ * Base NPC functions for talking with player and giving/completing tasks
+ */
+
 public class NPC : MonoBehaviour
 {
     public GameObject dialogueObject;
@@ -47,6 +54,8 @@ public class NPC : MonoBehaviour
     {
         npcName = "George";
     }
+
+    //Initializes all dialogue text npc says
     public virtual void CreateDialogue() 
     {
         convos = new List<string>[2];
@@ -185,6 +194,8 @@ public class NPC : MonoBehaviour
             EndTalkingEarly();
         }
     }
+
+    //Function call to finish a task and optionally remove an object in the world
     public void TurnInQuest() 
     {
         if (player.currentQuest.completionObject) 
@@ -194,6 +205,8 @@ public class NPC : MonoBehaviour
         activeQuest = false;
         player.currentQuest = null;
     }
+
+    //Start Dialogue
     public void TalkTo() 
     {
         dialogueObject.SetActive(true);
@@ -201,6 +214,8 @@ public class NPC : MonoBehaviour
         goAway = false;
         player.talkingToNPC = true;
     }
+
+    //Finish Dialogue
     public void EndDialogue() 
     {
         dialogueObject.SetActive(false);
@@ -214,6 +229,8 @@ public class NPC : MonoBehaviour
         player.talkingToNPC = false;
         PressEnterUI.SetActive(false);
     }
+
+    //If player stops dialogue before finished
     public void EndTalkingEarly() 
     {
         dialogueObject.SetActive(false);
@@ -226,6 +243,8 @@ public class NPC : MonoBehaviour
         player.talkingToNPC = false;
         PressEnterUI.SetActive(false);
     }
+
+    //Initialize Quests for this given NPC
     public virtual void CreateQuests() 
     {
         newQuests = new List<Quest>();
@@ -237,6 +256,8 @@ public class NPC : MonoBehaviour
         quest.SetTalkTarget(allNPC[1]);
         newQuests.Add(quest);
     }
+
+    //Dialogue for when the NPC has nothing to give/accept
     public virtual void SayGoAway() 
     {
         player.talkingToNPC = true;
@@ -251,6 +272,8 @@ public class NPC : MonoBehaviour
         goAway = true;
         PressEnterUI.SetActive(true);
     }
+
+    //Dialogue for completing final quest
     public virtual void SayYouWin() 
     {
         player.talkingToNPC = true;

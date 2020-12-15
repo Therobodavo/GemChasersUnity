@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * LevelManager Class
+ * Programmed by David Knolls
+ * 
+ * Storage for images and objects in a level
+ */
+
 public class LevelManager : MonoBehaviour
 {
     public Sprite[] buffImages;

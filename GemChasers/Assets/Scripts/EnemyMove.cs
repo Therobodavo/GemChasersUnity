@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * EnemyMove Class
+ * Programmed by David Knolls
+ * 
+ * Base code for enemy moves
+ * Similar to buffs for player
+ */
+
 public class EnemyMove
 {
     public float energyCost;
@@ -20,6 +28,7 @@ public class EnemyMove
         player = GameObject.Find("Player").GetComponent<PlayerManager>();
         damageScale = 1;
     }
+    //Trigger usage based off move type
     public void Use() 
     {
         if (moveType == IType.MoveType.InstantAttack)
@@ -43,6 +52,8 @@ public class EnemyMove
     {
         user.TakeEnergy(energyCost);
     }
+
+    //Event for Instant Attacks
     public virtual void OnInstantAttack()
     {
         BaseMove();
@@ -54,11 +65,13 @@ public class EnemyMove
         }
         player.TakeDamage(user, (user.baseStats[0] * typeMod * damageScale), false);
     }
+    //Event for Instant Passive Attacks
     public virtual void OnInstantPassive()
     {
         BaseMove();
         user.Relax(user.MAX_ENERGY);
     }
+    //Event for Delayed Damage Attacks
     public virtual void OnDelayedAttack()
     {
         BaseMove();
@@ -69,6 +82,7 @@ public class EnemyMove
         }
         player.turnDamage.Add(new BattleEffect(user, IType.Stat.Health, (user.baseStats[0] * typeMod * damageScale) / 3, moveElement, 3));
     }
+    //Event for Delayed Passive Attacks
     public virtual void OnDelayedPassive()
     {
         BaseMove();
