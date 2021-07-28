@@ -32,7 +32,7 @@ public class HealBuff : Buff
     public override void OnInstantPassive(PlayerAttack attackObj)
     {
         base.OnInstantPassive(attackObj);
-        attackObj.turnStatBuffs[4] = instantHealValue;
+        attackObj.turnStatBuffs[3] = instantHealValue;
     }
     public override void OnDelayedPassive(PlayerAttack attackObj)
     {
